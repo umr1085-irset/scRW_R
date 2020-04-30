@@ -1,9 +1,9 @@
 # ignore test data folder
 TESTDATA/
 
-# ignore folder containing environment utils
-UTILS/
-
 # ignore test output folder
 OUTPUT/
 
+# ignore hidden .DS_Store files
+RSC/.DS_Store
+SCRIPTS/.DS_Store
