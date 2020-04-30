@@ -1,0 +1,8 @@
+# DIRECTORIES
+aggrdir: TESTDATA/small_aggr/filtered_feature_bc_matrix # aggregated data directory
+aggrfile: TESTDATA/small_aggr/filtered_feature_bc_matrix.h5 # aggregated H5 file
+indivdir: TESTDATA/unaggr # individual samples directory
+outdir: OUTPUT # output directory
+
+# RESOURCE FILES
+ribogenesfile: mart_export_RiboGenes_GO0005840.txt # ribosomal genes file
