@@ -6,22 +6,28 @@
 
 import os
 import re
+import sys
+sys.path.append("SCRIPTS")
+from sample_list_extraction import sle
 
+######################################
+# CONFIG FILE
+######################################
 configfile: "config.yaml" # load config file
 
+######################################
+# PATHS
+######################################
 OUTDIR=os.path.join(config['outdir'],'') # grab folder information
 AGGRDIR=os.path.join(config['aggrdir'],'') # grab aggr folder info
+AGGRMATRIX=config['aggrmatrix'] # grab aggr folder info
 AGGRFILE=config['aggrfile'] # grab aggr folder info
 RIBOGENESFILE=config['ribogenesfile'] # grab aggr folder info
 
 ######################################
 # TARGET
 ######################################
-#grp = OUTDIR+"objects/sce/sce_cells.rds"
-#grp = OUTDIR+"objects/cell_phase/cell_phase_assignments.rds"
-#grp = OUTDIR+"QC/QC_genes_AveCounts_PCAOutliersRemoved.pdf"
 grp = [
-		OUTDIR+"objects/cell_phase/cell_phase_assignments.rds",
 		OUTDIR+".completion/step1",
 		OUTDIR+".completion/step2",
 		OUTDIR+".completion/step3",
@@ -31,12 +37,17 @@ rule all:
 	input: grp
 
 ######################################
+# SAMPLE LIST EXTRACTION
+######################################
+SAMPLES = sle(AGGRFILE)
+print(SAMPLES)
+
+######################################
 # PREPROCESSING
 ######################################
-
 rule step1_create_sce_obj:
 	input:
-		aggrfile=AGGRFILE
+		aggrfile=AGGRMATRIX
 	output:
 		rds_sce=OUTDIR+"objects/sce/sce.rds",
 		step_complete=OUTDIR+".completion/step1"
@@ -77,7 +88,14 @@ rule step4_gene_filtering:
 		QC_genes_AveGeneExpr_breaks100=OUTDIR+'QC/genes/QC_genes_AveGeneExpr_breaks100.pdf',
 		QC_genes_AveGeneExpr_PCAOutliersRemoved_breaks100=OUTDIR+'QC/genes/QC_genes_AveGene_ExprPCAOutliersRemoved_breaks100.pdf.pdf',
 		QC_genes_AveGeneExpr_PCAOutliersRemoved_LowAbundanceGenesRemoved_breaks100=OUTDIR+'QC/genes/QC_genes_AveGeneExpr_QcCellsGenes_breaks100.pdf',
+		QC_genes_Top50Expr_GreyHist_QcCellsGenes=OUTDIR+'QC/genes/QC_genes_Top50Expr_GreyHist_QcCellsGenes.pdf',
 		rds_sce_cells_genes=OUTDIR+"objects/sce/sce_cells_genes.rds",
+		#rds_clusters=OUTDIR+"objects/clusters/clusters.rds",
 		step_complete=OUTDIR+".completion/step4"
 	script:
 		"SCRIPTS/step4_gene_filtering.R"
+
+'''
+rule step5_doublet_detection:
+	input:
+'''

@@ -1,6 +1,7 @@
 # DIRECTORIES
 aggrdir: TESTDATA/small_aggr/filtered_feature_bc_matrix # aggregated data directory
-aggrfile: TESTDATA/small_aggr/filtered_feature_bc_matrix.h5 # aggregated H5 file
+aggrmatrix: TESTDATA/small_aggr/filtered_feature_bc_matrix.h5 # aggregated H5 file
+aggrfile: TESTDATA/small_aggr/aggregation.csv
 indivdir: TESTDATA/unaggr # individual samples directory
 outdir: OUTPUT # output directory
 

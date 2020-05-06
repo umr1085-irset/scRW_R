@@ -14,6 +14,7 @@
 ###############
 #library(SingleCellExperiment)
 library(scater)
+library(scran)
 
 ################
 # Load RDS files
@@ -66,19 +67,9 @@ pdf(snakemake@output[['QC_genes_AveGeneExpr_PCAOutliersRemoved_LowAbundanceGenes
 hist(log10(ave), breaks = 100, col="grey80")
 dev.off()
 
-##########
-# Save RDS
-##########
-saveRDS(sce_QcCellsGenes,snakemake@output[["rds_sce_cells_genes"]])
-
-###############
-# Complete step
-###############
-file.create(snakemake@output[["step_complete"]])
-
-#Detect the 50 most highly expressed genes:
-### After cell and gene oulier removal
-pdf(paste(outdir,'QCgenes_Top50Expr_GreyHist_QcCellsGenes.pdf',sep=''))
+# Detect the 50 most highly expressed genes:
+# After cell and gene oulier removal
+pdf(snakemake@output[['QC_genes_Top50Expr_GreyHist_QcCellsGenes']]) # create PDF plot
 par(mar=c(5,4,1,1))
 od1 = order(rowData(sce_QcCellsGenes)$AveCount, decreasing = TRUE)
 barplot(rowData(sce_QcCellsGenes)$AveCount[od1[50:1]], las=1, 
@@ -87,17 +78,20 @@ barplot(rowData(sce_QcCellsGenes)$AveCount[od1[50:1]], las=1,
         xlab="ave # of UMI")
 dev.off()
 
-### Switch Ensembl genes 2 Gene names:
-rownames(sce_QcCellsGenes) <- rowData(sce_QcCellsGenes)$GeneName
-
-#--- Save RDS ---
-saveRDS(sce_QcCellsGenes,rds.sce.cells.genes)
-#--- Load RDS ---
-#sce_QcCellsGenes <- readRDS(file="/groups/irset/archives/SingleCell/projects/HumanFetalGonads/201902/STEP4_DownstreamAnalysis_20190716/20190716_QCs_CellsGenes/Aggr_ALL_HFG_sceQcCellsGenes_20190725.rds")
-#----------------
+rownames(sce_QcCellsGenes) <- rowData(sce_QcCellsGenes)$ID # Switch Ensembl genes 2 Gene names:
+##########
+# Save RDS
+##########
+saveRDS(sce_QcCellsGenes,snakemake@output[["rds_sce_cells_genes"]])
 
 # For large data sets, clustering should be performed before normalization.
-clusters = quickCluster(sce_QcCellGenes, min.mean=0.1, method="igraph")
+#clusters = quickCluster(sce_QcCellsGenes, min.mean=0.1, method="igraph")
+#saveRDS(clusters,snakemake@output[["rds_clusters"]])
+
+###############
+# Complete step
+###############
+file.create(snakemake@output[["step_complete"]])
 
 # Doublet detection
 

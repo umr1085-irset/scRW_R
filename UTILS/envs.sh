@@ -15,3 +15,6 @@ conda install -c bioconda bioconductor-hdf5array  --yes
 #BiocManager::install("scran")
 conda install -c conda-forge r-robustbase --yes
 conda install -c r r-kernsmooth
+conda install -c anaconda pytables --yes
+
+#devtools::install_github('chris-mcginnis-ucsf/DoubletFinder')

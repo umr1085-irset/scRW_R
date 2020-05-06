@@ -5,5 +5,7 @@ TESTDATA/
 OUTPUT/
 
 # ignore hidden .DS_Store files
-RSC/.DS_Store
-SCRIPTS/.DS_Store
+**/.DS_Store
+
+# ignore pycache folders
+**/__pycache/
