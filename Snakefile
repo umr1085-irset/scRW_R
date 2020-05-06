@@ -19,10 +19,6 @@ configfile: "config.yaml" # load config file
 # PATHS
 ######################################
 OUTDIR=os.path.join(config['outdir'],'') # grab folder information
-AGGRDIR=os.path.join(config['aggrdir'],'') # grab aggr folder info
-AGGRMATRIX=config['aggrmatrix'] # grab aggr folder info
-AGGRFILE=config['aggrfile'] # grab aggr folder info
-RIBOGENESFILE=config['ribogenesfile'] # grab aggr folder info
 
 ######################################
 # TARGET
@@ -39,7 +35,7 @@ rule all:
 ######################################
 # SAMPLE LIST EXTRACTION
 ######################################
-SAMPLES = sle(AGGRFILE)
+SAMPLES = sle(config['aggrfile'])
 print(SAMPLES)
 
 ######################################
@@ -47,13 +43,13 @@ print(SAMPLES)
 ######################################
 rule step1_create_sce_obj:
 	input:
-		aggrfile=AGGRMATRIX
+		aggrfile=config['aggrmatrix']
 	output:
 		rds_sce=OUTDIR+"objects/sce/sce.rds",
 		step_complete=OUTDIR+".completion/step1"
 	params:
 		outdir=OUTDIR,
-		ribogenesfile=RIBOGENESFILE
+		ribogenesfile=config['ribogenesfile']
 	script:
 		"SCRIPTS/step1_create_sce_obj.R"
 

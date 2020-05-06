@@ -21,11 +21,6 @@ library(SingleCellExperiment)
 ################## 
 OUTDIR = snakemake@params[["outdir"]] # grab output directory
 PKGDIR = paste(normalizePath('.'),'/',sep='')
-
-#rds.sce = paste(OUTDIR,'objects/sce.rds', sep='') # path of sce object
-rds.sce.cells = paste(OUTDIR,'objects/sce.rds.cells', sep='') # path of sce object without outliers
-rds.sce.cells.genes = paste(OUTDIR,'objects/sce.rds.cells.genes', sep='') # path of sce object without outliers and with filtered genes
-rds.phase_cycles = paste(OUTDIR,'objects/phase_cycles.rds',sep='') # path of cell cycles
 file.ribo.genes = paste(PKGDIR,'RSC/GENELISTS/',snakemake@params[["ribogenesfile"]],sep='')
 
 ######################
