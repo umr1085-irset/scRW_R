@@ -8,7 +8,7 @@ import os
 import re
 import sys
 sys.path.append("SCRIPTS")
-from sample_list_extraction import sle
+from sample_list_extraction import sle, check_samples
 
 ######################################
 # CONFIG FILE
@@ -19,6 +19,7 @@ configfile: "config.yaml" # load config file
 # PATHS
 ######################################
 OUTDIR=os.path.join(config['outdir'],'') # grab folder information
+INDIVDIR=os.path.join(config['indivdir'],'')
 
 ######################################
 # TARGET
@@ -27,7 +28,8 @@ grp = [
 		OUTDIR+".completion/step1",
 		OUTDIR+".completion/step2",
 		OUTDIR+".completion/step3",
-		OUTDIR+".completion/step4"
+		OUTDIR+".completion/step4",
+		OUTDIR+".completion/step5"
 	]
 rule all:
 	input: grp
@@ -35,15 +37,15 @@ rule all:
 ######################################
 # SAMPLE LIST EXTRACTION
 ######################################
-SAMPLES = sle(config['aggrfile'])
-print(SAMPLES)
+SAMPLES = sle(config['aggrfile'], config['sample_extraction_fromcol'])
+check_samples(SAMPLES, config['indivdir'])
 
 ######################################
 # PREPROCESSING
 ######################################
 rule step1_create_sce_obj:
 	input:
-		aggrfile=config['aggrmatrix']
+		aggrmatrix=config['aggrmatrix']
 	output:
 		rds_sce=OUTDIR+"objects/sce/sce.rds",
 		step_complete=OUTDIR+".completion/step1"
@@ -91,7 +93,22 @@ rule step4_gene_filtering:
 	script:
 		"SCRIPTS/step4_gene_filtering.R"
 
-'''
 rule step5_doublet_detection:
 	input:
-'''
+		#sample=INDIVDIR+"{sample}/filtered_feature_bc_matrix",
+		sample="TESTDATA/unaggr/{sample}/filtered_feature_bc_matrix/",
+	output:
+		step_complete=OUTDIR+".completion/doubletfinder/{sample}",
+	script:
+		"SCRIPTS/step5_doublet_detection.R"
+
+rule step5_all:
+	input:
+		expand(OUTDIR+".completion/doubletfinder/{sample}",sample=SAMPLES)
+	output:
+		step_complete=OUTDIR+".completion/step5"
+
+
+
+
+

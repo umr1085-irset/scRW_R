@@ -1,9 +1,9 @@
 # DIRECTORIES
-aggrdir: TESTDATA/small_aggr/filtered_feature_bc_matrix # aggregated data directory
-aggrmatrix: TESTDATA/small_aggr/filtered_feature_bc_matrix.h5 # aggregated H5 file
-aggrfile: TESTDATA/small_aggr/aggregation.csv
-indivdir: TESTDATA/unaggr # individual samples directory
 outdir: OUTPUT # output directory
+aggrmatrix: TESTDATA/small_aggr/filtered_feature_bc_matrix.h5 # aggregated H5 file
+aggrfile: TESTDATA/small_aggr/aggregation.csv # aggregation file used with cellranger aggre
+sample_extraction_fromcol: library_id # library_id or molecule_h5
+indivdir: TESTDATA/unaggr # individual samples directory
 
 # RESOURCE FILES
 ribogenesfile: mart_export_RiboGenes_GO0005840.txt # ribosomal genes file

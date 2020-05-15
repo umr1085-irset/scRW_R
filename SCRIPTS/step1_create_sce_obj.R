@@ -29,7 +29,7 @@ file.ribo.genes = paste(PKGDIR,'RSC/GENELISTS/',snakemake@params[["ribogenesfile
 
 # Load H5 file
 print('Loading aggregated data')
-sce <- read10xCounts(snakemake@input[['aggrfile']], 
+sce <- read10xCounts(snakemake@input[['aggrmatrix']], 
           sample.names = NULL,
           col.names = TRUE, type = "HDF5",
           version = "3", genome = NULL)
