@@ -9,3 +9,6 @@ OUTPUT/
 
 # ignore pycache folders
 **/__pycache/
+
+# ignore Rplots files
+**/Rplots.pdf

@@ -12,85 +12,160 @@
 #################
 # Import packages
 #################
+library(DoubletFinder)
+library(SingleCellExperiment)
+library(Seurat)
+
+########################################
+# Extract individual sample barcode list
+########################################
+bcsgz=gzfile(snakemake@input[['bcsfile']],'rt') # barcodes file handle
+bcs=read.csv(bcsgz,header=F) # read barcodes
+bcs=bcs$V1 # extract barcodes to vector
+idx=match(snakemake@wildcards[["sample"]],snakemake@params[['samplelist']]) # get index of sample in aggregation sample list
+bcs=gsub("1", paste0(idx), bcs) # replace default "1" index in individual barcode list with sample index from aggregation list
+
+##########
+# Load RDS
+##########
+sce_QcCellsGenes = readRDS(file=snakemake@input[['rds_sce_cells_genes']]) # load data from RDS file
+logcounts(sce_QcCellsGenes) = as.matrix(log2(counts(sce_QcCellsGenes) + 1)) # create logcounts assay from counts assay
+#logcounts(sce_QcCellsGenes) = log2(counts(sce_QcCellsGenes) + 1) # create logcounts assay to convert to Seurat object
+
+###########################################
+# Extract cells matching the current sample
+###########################################
+allbcs=rownames(colData(sce_QcCellsGenes)) # get all barcodes from sce_QcCellsGenes object
+intersection=intersect(allbcs,bcs) # get intersection between original sample barcode list and all barcodes from sce_QcCellsGenes (after cell filtering)
+sub = sce_QcCellsGenes[,intersection] # subset sce_QcCellsGenes object using cell barcodes from current sample
+sub.seurat <- as.Seurat(sub, counts="counts", data="logcounts")
+
+#################################
+# Preparation steps DoubletFinder
+#################################
+sub.seurat <- NormalizeData(sub.seurat)
+sub.seurat <- ScaleData(sub.seurat)
+sub.seurat <- FindVariableFeatures(sub.seurat, selection.method = "vst", nfeatures = 2000)
+sub.seurat <- RunPCA(sub.seurat)
+#sub.seurat <- FindClusters(sub.seurat, dims.use = 1:30, resolution = 0.5, print.output = FALSE)
+#conda install -c conda-forge umap-learn
+#Error in RunUMAP.default(object = data.use, assay = assay, n.neighbors = n.neighbors,  : 
+#  Cannot find UMAP, please install through pip (e.g. pip install umap-learn).
+#sub.seurat <- RunUMAP(sub.seurat, dims = 1:10)
+sweep.res.list_sub.seurat <- paramSweep_v3(sub.seurat, PCs = 1:10, sct = FALSE)
+sweep.stats_sub.seurat<- summarizeSweep(sweep.res.list_sub.seurat, GT = FALSE)
+#BCmvn = mean-variance-normalized bimodality coefficient
+bcmvn_sub.seurat <- find.pK(sweep.stats_sub.seurat)
+#DoubletFinder is sensitive to heterotypic doublets -- i.e., doublets formed from transcriptionally-distinct cell states -- 
+# but is insensitive to homotypic doublets -- i.e., doublets formed from transcriptionally-similar cell states.
+#BCmvn distributions also feature a single maximum for scRNA-seq datasets generated without sample-multiplexing, enabling pK selection.
+#pk <- as.numeric(as.vector(bcmvn_sub.seurat$pK)[which.max(bcmvn_sub.seurat$BCmetric)]) #0.005
+pk = 0.09
+nExp_poi <- round(0.075 * dim(sub.seurat)[2]) #191
+#pN ~ This defines the number of generated artificial doublets, expressed as a proportion of the merged real-artificial data.
+# Default is set to 25%, based on observation that DoubletFinder performance is largely pN-invariant
 
 ###################
 # Run DoubletFinder
 ###################
+sub.seurat <- doubletFinder_v3(sub.seurat, PCs = 1:10, pN = 0.25, pK = pk, nExp = nExp_poi, reuse.pANN = FALSE, sct = FALSE) # run DoubletFinder
+indexDFInfo <- which(names(sub.seurat@meta.data) == sprintf("DF.classifications_0.25_%s_%s",pk,nExp_poi)) # extract DF results column index
+DoubletsIndices <- which(sub.seurat@meta.data[indexDFInfo][,1] =="Doublet") # extract cell indices classified as doublets
+Doublets <- rownames(sub.seurat@meta.data[DoubletsIndices,]) # extract cell barcodes classified as doublets
+write.table(Doublets, file=snakemake@output[['doublets_sample_file']] , sep="\t", quote=FALSE, row.names=FALSE, col.names=FALSE)
 
-print(snakemake@input[["sample"]])
-ith_QcCellsGenes <- doubletFinder(ith_QcCellsGenes, PCs = 1:30, pN = 0.25, pK = pk, nExp = nExp_poi, reuse.pANN = FALSE)
+#### 4.2- Doublets prediction on each biological sample
+#CONVERSIONFILE="/groups/irset/archives/SingleCell/projects/HumanRCC/ITH_ccRCC/201904/GenewizName2SampleName_20190409.txt"
+#ConversionInfo <- as.matrix(read.table(CONVERSIONFILE, header=F, sep="\t"))
+#SampleNames    <- ConversionInfo[,2]
+#SampleIDs      <- matrix(unlist(strsplit(ConversionInfo[,1],"_")),nrow=length(SampleNames),ncol=5,byrow=T)[,1]
+#
+#sceData <- sce_QcCellsGenes_ALL
+#for (i in 1:nrow(ConversionInfo)) {
+#	SampleName <- SampleNames[i]
+#	SampleID   <- SampleIDs[i]
+#	cat("DoubletDetection ON:: SampleName:", SampleName, "and SampleID:", SampleID, "\n")
+#	DoubletDetection(i,SampleName,SampleID,sceData)
+#}
+#
+#### 4.3- Save the DoubletFinder information in a single file ###
+#OUTFile <- "ITH_ccRCC_DoubletFinder.txt"
+#for (SampleName in SampleNames) {
+#	DFFile <- sprintf("ITH_ccRCC_DoubletFinder_%s.txt",SampleName)
+#	Data <- as.matrix(read.table(DFFile))[,1]
+#	sprintf("Sample: %s --> Number of doublets: %s.", SampleName, length(Data))
+#
+#	write.table(Data,file = OUTFile,sep = "\t", append=TRUE, quote= FALSE, row.names=FALSE, col.names=FALSE)
+#}
+#################################################################
+#
+#
+#### 4.4- Save the DoubletFinder information in the sce object on all the samples ###
+#ALL_Doublets <- as.matrix(read.table(OUTFile))[,1]
+#length(ALL_Doublets) #2095
+#
+#sce_QcCellsGenes_DF <- sce_QcCellsGenes_ALL 
+#sce_QcCellsGenes_DF # 21144 genes x 27921 cells, only counts slot!!
+##Add these information in the sce object
+#colData(sce_QcCellsGenes_DF)["DoubletFinder"] <- "Singlet"
+#colData(sce_QcCellsGenes_DF)["DoubletFinder"][ALL_Doublets,] <- "Doublet"
+#table(colData(sce_QcCellsGenes_DF)["DoubletFinder"])
+##Doublet Singlet
+##   2095   25826
+#
+##Save RDS:
+#saveRDS(sce_QcCellsGenes_DF,"/groups/irset/archives/SingleCell/projects/HumanRCC/ITH_ccRCC/201904/STEP4_DownstreamAnalysis_20190716/20190716_QCs_DFNorm/Aggr_ALL_ITH_ccRCC_sce_QCCellGenes_DF_20190718.rds")
+##Load RDS:
+#sce_QcCellsGenes_DF <- readRDS(file="/groups/irset/archives/SingleCell/projects/HumanRCC/ITH_ccRCC/201904/STEP4_DownstreamAnalysis_20190716/20190716_QCs_DFNorm/Aggr_ALL_ITH_ccRCC_sce_QCCellGenes_DF_20190718.rds")
+####################################################################################
 
 ###############
 # Complete step
 ###############
 file.create(snakemake@output[["step_complete"]])
 
+###########################################################################
+############################## R TESTS ####################################
+###########################################################################
 
-####################################
-### Doublet detection            ###
-####################################
-#https://github.com/chris-mcginnis-ucsf/DoubletFinder
-# DoubletFinder can be broken up into 4 steps:
-# (1) Generate artificial doublets from existing scRNA-seq data
-# (2) Pre-process merged real-artificial data
-# (3) Perform PCA and use the PC distance matrix to find each cell's proportion of artificial k nearest neighbors (pANN)
-# (4) Rank order and threshold pANN values according to the expected number of doublets
-
-###3- Ensure that input data is cleared of low-quality cell clusters AND then of low QC genes:
-### 3.1- Reduce the sce object of the single sample to the cells quality controlled on the whole expression matrix (7 samples at once) (from script step4_ITH_ccRCC_20190529_QCs.R)
-sce_QcCells <- sce[,QcCells]
-sprintf("Number of cells in this samples reduced from: %s to %s after quality control", length(colData(sce)$X),length(QcCells))
-sprintf("%s cells were removed during the quality control on cells and genes of this sample", length(setdiff(colData(sce)$X,QcCells))) #290
-
-### 3.2- Reduce the sce object to the genes quality controlled on the whole expression matrix (7 samples at once) ###
-QC_genes <- rownames(sce_QcCellsGenes_ALL) #GeneNames
-sce_QcCellsGenes <- sce_QcCells[QC_genes,]
-###/3
-
-### 4- Convert the sce object {scater} into a {Seurat} object ---
-### Need to have the logcounts slot to create the Seurat object:
-### Create an additional slot with log-transformed counts: =log2(DeepthNormalizedData!)
-#NEED TO NAME THIS "logcounts" TO BE ABLE TO SIMPLY ACCESS THE DATA WITH logcounts(Selected.Genes.Cells.sce)
-assay(sce_QcCellsGenes,"logcounts") <- log2(counts(sce_QcCellsGenes) + 1) # logcounts slot created.
-
-### Creation of the ith (IntraTumoralHeterogeneity) Seurat object:
-ith_QcCellsGenes <- Convert(from = sce_QcCellsGenes, to = "seurat")
-
-### 5- DoubletFinder steps: inspired from: cf https://github.com/chris-mcginnis-ucsf/DoubletFinder
-### 5.1- Pre-process Seurat object with standard method: ---
-ith_QcCellsGenes <- NormalizeData(ith_QcCellsGenes)
-ith_QcCellsGenes <- ScaleData(ith_QcCellsGenes)
-
-### The redundant genes were removed in the QC step on cells ans genes
-# RedundantGenes <- QC_genes[which(duplicated(QC_genes)=="TRUE")]
-# RedundantGenesIndices <-which((rownames(ith_QcCellsGenes@data) %in% RedundantGenes)==TRUE)
-# sprintf("Nb of unredundant genes: %s", nrow(ith_QcCellsGenes@data[-RedundantGenesIndices,]))
-# ith_QcCellsGenes@data <- ith_QcCellsGenes@data[-RedundantGenesIndices,]
-ith_QcCellsGenes <- FindVariableGenes(ith_QcCellsGenes, mean.function = ExpMean, dispersion.function = LogVMR, do.plot = FALSE) #output saved in ith_QcCellsGenes@hvg.info
-
-ith_QcCellsGenes <- RunPCA(ith_QcCellsGenes, pc.genes = ith_QcCellsGenes@var.genes, pcs.print = 0, pcs.compute = 30)
-ith_QcCellsGenes <- FindClusters(ith_QcCellsGenes, dims.use = 1:30, resolution = 0.5, print.output = FALSE)
-#conda install -c conda-forge umap-learn, ne fonctionne pas sur fenetre conda en parallele
-ith_QcCellsGenes <- RunUMAP(ith_QcCellsGenes, dims=1:30) #warnings.warn(errors.NumbaDeprecationWarning(msg, self.func_ir.loc))
-
-### 5.2- pK Identification (no ground-truth): ---
-####remove gene redundancy in raw.data: No more because done at the previous QC on cells and genes step!
-#ith_QcCellsGenes@raw.data <- ith_QcCellsGenes@raw.data[-RedundantGenesIndices,]
-#inspired from: https://www.gitmemory.com/chris-mcginnis-ucsf
-sweep.res.list_ith_QcCellsGenes <- paramSweep(ith_QcCellsGenes, PCs = 1:30)
-sweep.stats_ith_QcCellsGenes    <- summarizeSweep(sweep.res.list_ith_QcCellsGenes, GT = FALSE)
-#BCmvn = mean-variance-normalized bimodality coefficient
-bcmvn_ith_QcCellsGenes <- find.pK(sweep.stats_ith_QcCellsGenes)
-
-#DoubletFinder is sensitive to heterotypic doublets -- i.e., doublets formed from transcriptionally-distinct cell states -- 
-# but is insensitive to homotypic doublets -- i.e., doublets formed from transcriptionally-similar cell states.
-#BCmvn distributions also feature a single maximum for scRNA-seq datasets generated without sample-multiplexing, enabling pK selection.
-pk <- as.numeric(as.vector(bcmvn_ith_QcCellsGenes$pK)[which.max(bcmvn_ith_QcCellsGenes$BCmetric)]) #0.005
-nExp_poi <- round(0.075 * length(ith_QcCellsGenes@cell.names)) #191
-#pN ~ This defines the number of generated artificial doublets, expressed as a proportion of the merged real-artificial data.
-# Default is set to 25%, based on observation that DoubletFinder performance is largely pN-invariant
-
-### 5.3- Run DoubletFinder
-#pk should be adjusted for each datset
-ith_QcCellsGenes <- doubletFinder(ith_QcCellsGenes, PCs = 1:30, pN = 0.25, pK = pk, nExp = nExp_poi, reuse.pANN = FALSE)
-#output info in: ith_QcCellsGenes@meta.data$DF.classifications_0.25_0.005_191
+#library(DoubletFinder)
+#library(SingleCellExperiment)
+#library(Seurat)
+#s='TESTDATA/unaggr/f_9+4_SIN2/filtered_feature_bc_matrix/barcodes.tsv.gz'
+#idx=2
+#bcsgz=gzfile(s,'rt')
+#bcs=read.csv(bcsgz,header=F) 
+#bcs=bcs$V1
+#bcs=gsub("1", paste0(idx), bcs)
+#sce_QcCellsGenes = readRDS('OUTPUT/objects/sce/sce_cells_genes.rds')
+##logcounts(sce_QcCellsGenes) = Matrix::Matrix(log2(counts(sce_QcCellsGenes) + 1), sparse=T)
+##logcounts(sce_QcCellsGenes)
+#logcounts(sce_QcCellsGenes) = as.matrix(log2(counts(sce_QcCellsGenes) + 1))
+#allbcs=rownames(colData(sce_QcCellsGenes)) # get all barcodes from sce_QcCellsGenes object
+#intersection=intersect(allbcs,bcs) # get intersection between original sample barcode list and all barcodes from sce_QcCellsGenes (after cell filtering)
+#sub = sce_QcCellsGenes[,intersection] # subset sce_QcCellsGenes object using cell barcodes from current sample
+#sub.seurat <- as.Seurat(sub, counts = "counts", data = "logcounts") #"data.slot = "logcounts"
+#sub.seurat <- NormalizeData(sub.seurat)
+#sub.seurat <- ScaleData(sub.seurat)
+#sub.seurat <- FindVariableFeatures(sub.seurat, selection.method = "vst", nfeatures = 2000)
+#sub.seurat <- RunPCA(sub.seurat)
+##sub.seurat <- FindClusters(sub.seurat, dims.use = 1:30, resolution = 0.5, print.output = FALSE)
+##conda install -c conda-forge umap-learn
+##Error in RunUMAP.default(object = data.use, assay = assay, n.neighbors = n.neighbors,  : 
+##  Cannot find UMAP, please install through pip (e.g. pip install umap-learn).
+##sub.seurat <- RunUMAP(sub.seurat, dims = 1:10)
+#sweep.res.list_sub.seurat <- paramSweep_v3(sub.seurat, PCs = 1:10, sct = FALSE)
+#sweep.stats_sub.seurat<- summarizeSweep(sweep.res.list_sub.seurat, GT = FALSE)
+##BCmvn = mean-variance-normalized bimodality coefficient
+#bcmvn_sub.seurat <- find.pK(sweep.stats_sub.seurat)
+##DoubletFinder is sensitive to heterotypic doublets -- i.e., doublets formed from transcriptionally-distinct cell states -- 
+## but is insensitive to homotypic doublets -- i.e., doublets formed from transcriptionally-similar cell states.
+##BCmvn distributions also feature a single maximum for scRNA-seq datasets generated without sample-multiplexing, enabling pK selection.
+##pk <- as.numeric(as.vector(bcmvn_sub.seurat$pK)[which.max(bcmvn_sub.seurat$BCmetric)]) #0.005
+#nExp_poi <- round(0.075 * dim(sub.seurat)[2]) #191
+##pN ~ This defines the number of generated artificial doublets, expressed as a proportion of the merged real-artificial data.
+## Default is set to 25%, based on observation that DoubletFinder performance is largely pN-invariant
+#sub.seurat <- doubletFinder_v3(sub.seurat, PCs = 1:10, pN = 0.25, pK = 0.09, nExp = nExp_poi, reuse.pANN = FALSE, sct = FALSE)
+#indexDFInfo <- which(names(sub.seurat@meta.data) == sprintf("DF.classifications_0.25_%s_%s",pk,nExp_poi)) # extract DF results column index
+#DoubletsIndices <- which(sub.seurat@meta.data[indexDFInfo][,1] =="Doublet") # extract cell indices classified as doublets
+#Doublets <- rownames(sub.seurat@meta.data[DoubletsIndices,]) # extract cell barcodes classified as doublets

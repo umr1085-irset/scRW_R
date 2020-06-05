@@ -16,5 +16,8 @@ conda install -c bioconda bioconductor-hdf5array  --yes
 conda install -c conda-forge r-robustbase --yes
 conda install -c r r-kernsmooth
 conda install -c anaconda pytables --yes
-
+conda install -c conda-forge r-remotes --yes
 #devtools::install_github('chris-mcginnis-ucsf/DoubletFinder')
+#remotes::install_github('chris-mcginnis-ucsf/DoubletFinder')
+conda install -c bioconda r-seurat --yes
+conda install -c conda-forge umap-learn --yes

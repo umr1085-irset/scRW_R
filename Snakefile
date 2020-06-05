@@ -25,8 +25,8 @@ INDIVDIR=os.path.join(config['indivdir'],'')
 # TARGET
 ######################################
 grp = [
-		OUTDIR+".completion/step1",
-		OUTDIR+".completion/step2",
+		OUTDIR+".completion/step1", # create sce object
+		OUTDIR+".completion/step2", # remove cell outliers
 		OUTDIR+".completion/step3",
 		OUTDIR+".completion/step4",
 		OUTDIR+".completion/step5"
@@ -95,10 +95,13 @@ rule step4_gene_filtering:
 
 rule step5_doublet_detection:
 	input:
-		#sample=INDIVDIR+"{sample}/filtered_feature_bc_matrix",
-		sample="TESTDATA/unaggr/{sample}/filtered_feature_bc_matrix/",
+		rds_sce_cells_genes=OUTDIR+"objects/sce/sce_cells_genes.rds",
+		bcsfile=INDIVDIR+"{sample}/filtered_feature_bc_matrix/barcodes.tsv.gz"
+	params:
+		samplelist=SAMPLES
 	output:
-		step_complete=OUTDIR+".completion/doubletfinder/{sample}",
+		doublets_sample_file=OUTDIR+'DoubletFinder/{sample}_barcodes_singlets.txt',
+		step_complete=OUTDIR+".completion/doubletfinder/{sample}"
 	script:
 		"SCRIPTS/step5_doublet_detection.R"
 
@@ -106,7 +109,9 @@ rule step5_all:
 	input:
 		expand(OUTDIR+".completion/doubletfinder/{sample}",sample=SAMPLES)
 	output:
-		step_complete=OUTDIR+".completion/step5"
+		OUTDIR+".completion/step5"
+	shell:
+		"touch {output}"
 
 
 
