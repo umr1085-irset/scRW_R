@@ -71,53 +71,11 @@ nExp_poi <- round(0.075 * dim(sub.seurat)[2]) #191
 sub.seurat <- doubletFinder_v3(sub.seurat, PCs = 1:10, pN = 0.25, pK = pk, nExp = nExp_poi, reuse.pANN = FALSE, sct = FALSE) # run DoubletFinder
 indexDFInfo <- which(names(sub.seurat@meta.data) == sprintf("DF.classifications_0.25_%s_%s",pk,nExp_poi)) # extract DF results column index
 DoubletsIndices <- which(sub.seurat@meta.data[indexDFInfo][,1] =="Doublet") # extract cell indices classified as doublets
+SingletsIndices <- which(sub.seurat@meta.data[indexDFInfo][,1] =="Singlet") # extract cell indices classified as singlets
 Doublets <- rownames(sub.seurat@meta.data[DoubletsIndices,]) # extract cell barcodes classified as doublets
-write.table(Doublets, file=snakemake@output[['doublets_sample_file']] , sep="\t", quote=FALSE, row.names=FALSE, col.names=FALSE)
-
-#### 4.2- Doublets prediction on each biological sample
-#CONVERSIONFILE="/groups/irset/archives/SingleCell/projects/HumanRCC/ITH_ccRCC/201904/GenewizName2SampleName_20190409.txt"
-#ConversionInfo <- as.matrix(read.table(CONVERSIONFILE, header=F, sep="\t"))
-#SampleNames    <- ConversionInfo[,2]
-#SampleIDs      <- matrix(unlist(strsplit(ConversionInfo[,1],"_")),nrow=length(SampleNames),ncol=5,byrow=T)[,1]
-#
-#sceData <- sce_QcCellsGenes_ALL
-#for (i in 1:nrow(ConversionInfo)) {
-#	SampleName <- SampleNames[i]
-#	SampleID   <- SampleIDs[i]
-#	cat("DoubletDetection ON:: SampleName:", SampleName, "and SampleID:", SampleID, "\n")
-#	DoubletDetection(i,SampleName,SampleID,sceData)
-#}
-#
-#### 4.3- Save the DoubletFinder information in a single file ###
-#OUTFile <- "ITH_ccRCC_DoubletFinder.txt"
-#for (SampleName in SampleNames) {
-#	DFFile <- sprintf("ITH_ccRCC_DoubletFinder_%s.txt",SampleName)
-#	Data <- as.matrix(read.table(DFFile))[,1]
-#	sprintf("Sample: %s --> Number of doublets: %s.", SampleName, length(Data))
-#
-#	write.table(Data,file = OUTFile,sep = "\t", append=TRUE, quote= FALSE, row.names=FALSE, col.names=FALSE)
-#}
-#################################################################
-#
-#
-#### 4.4- Save the DoubletFinder information in the sce object on all the samples ###
-#ALL_Doublets <- as.matrix(read.table(OUTFile))[,1]
-#length(ALL_Doublets) #2095
-#
-#sce_QcCellsGenes_DF <- sce_QcCellsGenes_ALL 
-#sce_QcCellsGenes_DF # 21144 genes x 27921 cells, only counts slot!!
-##Add these information in the sce object
-#colData(sce_QcCellsGenes_DF)["DoubletFinder"] <- "Singlet"
-#colData(sce_QcCellsGenes_DF)["DoubletFinder"][ALL_Doublets,] <- "Doublet"
-#table(colData(sce_QcCellsGenes_DF)["DoubletFinder"])
-##Doublet Singlet
-##   2095   25826
-#
-##Save RDS:
-#saveRDS(sce_QcCellsGenes_DF,"/groups/irset/archives/SingleCell/projects/HumanRCC/ITH_ccRCC/201904/STEP4_DownstreamAnalysis_20190716/20190716_QCs_DFNorm/Aggr_ALL_ITH_ccRCC_sce_QCCellGenes_DF_20190718.rds")
-##Load RDS:
-#sce_QcCellsGenes_DF <- readRDS(file="/groups/irset/archives/SingleCell/projects/HumanRCC/ITH_ccRCC/201904/STEP4_DownstreamAnalysis_20190716/20190716_QCs_DFNorm/Aggr_ALL_ITH_ccRCC_sce_QCCellGenes_DF_20190718.rds")
-####################################################################################
+Singlets <- rownames(sub.seurat@meta.data[SingletsIndices,]) # extract cell barcodes classified as singlets
+write.table(Doublets, file=snakemake@output[['doublets_sample_file']], sep="\t", quote=FALSE, row.names=FALSE, col.names=FALSE) # save doublets barcodes to file
+write.table(Singlets, file=snakemake@output[['singlets_sample_file']], sep="\t", quote=FALSE, row.names=FALSE, col.names=FALSE) # save singlets barcodes to file
 
 ###############
 # Complete step
@@ -168,4 +126,14 @@ file.create(snakemake@output[["step_complete"]])
 #sub.seurat <- doubletFinder_v3(sub.seurat, PCs = 1:10, pN = 0.25, pK = 0.09, nExp = nExp_poi, reuse.pANN = FALSE, sct = FALSE)
 #indexDFInfo <- which(names(sub.seurat@meta.data) == sprintf("DF.classifications_0.25_%s_%s",pk,nExp_poi)) # extract DF results column index
 #DoubletsIndices <- which(sub.seurat@meta.data[indexDFInfo][,1] =="Doublet") # extract cell indices classified as doublets
+#SingletsIndices <- which(sub.seurat@meta.data[indexDFInfo][,1] =="Singlet") # extract cell indices classified as singlets
 #Doublets <- rownames(sub.seurat@meta.data[DoubletsIndices,]) # extract cell barcodes classified as doublets
+#Singlets <- rownames(sub.seurat@meta.data[SingletsIndices,]) # extract cell barcodes classified as singlets
+#doubletsoutfile='OUTPUT/DoubletFinder/f_9+4_SIN2_barcodes_doublets.txt'
+#singletsoutfile='OUTPUT/DoubletFinder/f_9+4_SIN2_barcodes_singlets.txt'
+#write.table(Doublets, file=doubletsoutfile, sep="\t", quote=FALSE, row.names=FALSE, col.names=FALSE)
+#write.table(Singlets, file=singletsoutfile, sep="\t", quote=FALSE, row.names=FALSE, col.names=FALSE)
+
+
+
+

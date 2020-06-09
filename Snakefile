@@ -100,18 +100,23 @@ rule step5_doublet_detection:
 	params:
 		samplelist=SAMPLES
 	output:
-		doublets_sample_file=OUTDIR+'DoubletFinder/{sample}_barcodes_singlets.txt',
+		doublets_sample_file=OUTDIR+'DoubletFinder/{sample}_barcodes_doublets.txt',
+		singlets_sample_file=OUTDIR+'DoubletFinder/{sample}_barcodes_singlets.txt',
 		step_complete=OUTDIR+".completion/doubletfinder/{sample}"
 	script:
 		"SCRIPTS/step5_doublet_detection.R"
 
-rule step5_all:
+rule step5_doublet_filter:
 	input:
-		expand(OUTDIR+".completion/doubletfinder/{sample}",sample=SAMPLES)
+		bcs_file_list=expand(OUTDIR+"DoubletFinder/{sample}_barcodes_singlets.txt",sample=SAMPLES),
+		rds_sce_cells_genes=OUTDIR+"objects/sce/sce_cells_genes.rds",
 	output:
-		OUTDIR+".completion/step5"
-	shell:
-		"touch {output}"
+		rds_sce_cells_genes_filtered=OUTDIR+"objects/sce/sce_cells_genes_filtered.rds",
+		all_singlets=OUTDIR+'DoubletFinder/ALL_barcodes_singlets.txt',
+		#all_doublets=OUTDIR+'DoubletFinder/ALL_barcodes_doublets.txt',
+		step_complete=OUTDIR+".completion/step5"
+	script:
+		"SCRIPTS/step5_doublet_filter.R"
 
 
 
