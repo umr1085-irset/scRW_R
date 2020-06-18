@@ -84,10 +84,6 @@ rownames(sce_QcCellsGenes) <- rowData(sce_QcCellsGenes)$ID # Switch Ensembl gene
 ##########
 saveRDS(sce_QcCellsGenes,snakemake@output[["rds_sce_cells_genes"]])
 
-# For large data sets, clustering should be performed before normalization.
-#clusters = quickCluster(sce_QcCellsGenes, min.mean=0.1, method="igraph")
-#saveRDS(clusters,snakemake@output[["rds_clusters"]])
-
 ###############
 # Complete step
 ###############
