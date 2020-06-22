@@ -97,7 +97,7 @@ rule step4_gene_filtering:
 rule step5_doublet_detection:
 	input:
 		rds_sce_cells_genes=OUTDIR+"objects/sce/sce_cells_genes.rds",
-		bcsfile=INDIVDIR+"{sample}/filtered_feature_bc_matrix/barcodes.tsv.gz"
+		bcsfile=INDIVDIR+"{sample}/outs/filtered_feature_bc_matrix/barcodes.tsv.gz"
 	params:
 		samplelist=SAMPLES
 	output:
