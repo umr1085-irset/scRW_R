@@ -31,7 +31,7 @@ grp = [
 	OUTDIR+".completion/step4", # gene filtering
 	OUTDIR+".completion/step5", # run DoubletFinder and filter out doublets
 	#OUTDIR+".completion/step6", # deconvolution normalization
-	OUTDIR+".completion/step6_merge" # individual deconvolution normalization + merge
+	OUTDIR+".completion/step6_merge", # individual deconvolution normalization + merge
 ]
 rule all:
 	input: grp
@@ -99,22 +99,23 @@ rule step5_doublet_detection:
 		rds_sce_cells_genes=OUTDIR+"objects/sce/sce_cells_genes.rds",
 		bcsfile=INDIVDIR+"{sample}/outs/filtered_feature_bc_matrix/barcodes.tsv.gz"
 	params:
-		samplelist=SAMPLES
+		samplelist=SAMPLES,
+		current_sample="{sample}"
 	output:
-		doublets_sample_file=OUTDIR+'DoubletFinder/{sample}_barcodes_doublets.txt',
-		singlets_sample_file=OUTDIR+'DoubletFinder/{sample}_barcodes_singlets.txt',
+		doublets_sample_file=OUTDIR+'DoubletFinder/barcode_lists/{sample}_barcodes_doublets.txt',
+		singlets_sample_file=OUTDIR+'DoubletFinder/barcode_lists/{sample}_barcodes_singlets.txt',
 		step_complete=OUTDIR+".completion/doubletfinder/{sample}"
 	script:
 		"SCRIPTS/step5_doublet_detection.R"
 
 rule step5_doublet_filter:
 	input:
-		bcs_file_list=expand(OUTDIR+"DoubletFinder/{sample}_barcodes_singlets.txt",sample=SAMPLES),
+		bcs_file_list=expand(OUTDIR+"DoubletFinder/barcode_lists/{sample}_barcodes_singlets.txt",sample=SAMPLES),
 		rds_sce_cells_genes=OUTDIR+"objects/sce/sce_cells_genes.rds",
 	output:
 		rds_sce_cells_genes_filtered=OUTDIR+"objects/sce/sce_cells_genes_filtered.rds",
 		rds_sce_cells_genes_DF=OUTDIR+"objects/sce/sce_cells_genes_DF.rds",
-		all_singlets=OUTDIR+'DoubletFinder/ALL_barcodes_singlets.txt',
+		all_singlets=OUTDIR+'DoubletFinder/barcode_lists/ALL_barcodes_singlets.txt',
 		step_complete=OUTDIR+".completion/step5"
 	script:
 		"SCRIPTS/step5_doublet_filter.R"
@@ -123,7 +124,7 @@ rule step6_deconvolution_norm:
 	input:
 		rds_sce_cells_genes_filtered=OUTDIR+"objects/sce/sce_cells_genes_filtered.rds",
 	output:
-		rds_clusters=OUTDIR+"objects/clusters/ALL_clusters.rds",
+		rds_clusters=OUTDIR+"Normalization/ALL_normalization_clusters.rds",
 		plot_Norm_HistSizeFactors=OUTDIR+"Normalization/Norm_HistSizeFactors.pdf",
 		plot_Norm_SizeFactorsVsTotalCountsPerMillion=OUTDIR+"Normalization/Norm_SizeFactorsVsTotalCountsPerMillion.pdf",
 		plot_Norm_SizeFactorsVsTotalCounts_smooth=OUTDIR+"Normalization/Norm_SizeFactorsVsTotalCounts_smooth.pdf",
@@ -136,10 +137,10 @@ rule step6_deconvolution_norm:
 
 rule step6_individual_deconvolution_norm:
 	input:
-		sample_singlets=OUTDIR+"DoubletFinder/{sample}_barcodes_singlets.txt",
+		sample_singlets=OUTDIR+"DoubletFinder/barcode_lists/{sample}_barcodes_singlets.txt",
 		rds_sce_cells_genes_filtered=OUTDIR+"objects/sce/sce_cells_genes_filtered.rds",
 	output:
-		rds_clusters=OUTDIR+"objects/clusters/individual_samples/{sample}_clusters.rds",
+		rds_clusters=OUTDIR+"Normalization/individual_samples/{sample}/normalization_clusters.rds",
 		plot_Norm_HistSizeFactors=OUTDIR+"Normalization/Indivual_samples/{sample}/Norm_HistSizeFactors.pdf",
 		plot_Norm_SizeFactorsVsTotalCountsPerMillion=OUTDIR+"Normalization/Indivual_samples/{sample}/Norm_SizeFactorsVsTotalCountsPerMillion.pdf",
 		plot_Norm_SizeFactorsVsTotalCounts_smooth=OUTDIR+"Normalization/Indivual_samples/{sample}/Norm_SizeFactorsVsTotalCounts_smooth.pdf",
@@ -158,19 +159,3 @@ rule step6_merge_individual_normalizations:
 		step_complete=OUTDIR+".completion/step6_merge"
 	script:
 		"SCRIPTS/step6_merge_individual_normalizations.R"
-
-#rule step6_individual_deconvolution_norm:
-#	input:
-#		OUTDIR+"DoubletFinder/{sample}_barcodes_singlets.txt",
-#		rds_sce_cells_genes_filtered=OUTDIR+"objects/sce/sce_cells_genes_filtered.rds",
-#	output:
-#		rds_clusters=OUTDIR+"objects/clusters/clusters.rds",
-#		plot_Norm_HistSizeFactors=OUTDIR+"Normalization/Norm_HistSizeFactors.pdf",
-#		plot_Norm_SizeFactorsVsTotalCountsPerMillion=OUTDIR+"Normalization/Norm_SizeFactorsVsTotalCountsPerMillion.pdf",
-#		plot_Norm_SizeFactorsVsTotalCounts_smooth=OUTDIR+"Normalization/Norm_SizeFactorsVsTotalCounts_smooth.pdf",
-#		rds_sce_cells_genes_filtered_normed=OUTDIR+"objects/sce/sce_cells_genes_filtered_normed.rds",
-#		step_complete=OUTDIR+".completion/step6indidual"
-#	script:
-#		"SCRIPTS/step6_individual_deconvolution_norm.R"
-
-

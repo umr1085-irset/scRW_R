@@ -26,6 +26,7 @@ sce_QcCells = readRDS(file=snakemake@input[['rds_sce_cells']])
 # Filtering out low abundance genes
 ###################################
 ### Alternative approach: select genes that have non-zero counts in at least n cellules
+print('Filtering out low abundance genes')
 numcells <- nexprs(sce_QcCells, byrow=TRUE)
 alt.keep <- numcells >= 10
 sce_QcCellsGenes <- sce_QcCells[alt.keep,]
@@ -33,6 +34,7 @@ sce_QcCellsGenes <- sce_QcCells[alt.keep,]
 ##########################
 # Gene expression QC plots
 ##########################
+print('Generating gene QC plots')
 ave.counts <- rowMeans(counts(sce_QcCells)) # compute average count for each feature
 pdf(snakemake@output[['QC_genes_AveCounts_PCAOutliersRemoved']]) # create PDF plot
 hist(log10(ave.counts), breaks=100, main="", col="grey80",
@@ -79,6 +81,7 @@ barplot(rowData(sce_QcCellsGenes)$AveCount[od1[50:1]], las=1,
 dev.off()
 
 rownames(sce_QcCellsGenes) <- rowData(sce_QcCellsGenes)$ID # Switch Ensembl genes 2 Gene names:
+
 ##########
 # Save RDS
 ##########
@@ -88,10 +91,3 @@ saveRDS(sce_QcCellsGenes,snakemake@output[["rds_sce_cells_genes"]])
 # Complete step
 ###############
 file.create(snakemake@output[["step_complete"]])
-
-# Doublet detection
-
-# Normalization scran deconvolution
-
-
-
