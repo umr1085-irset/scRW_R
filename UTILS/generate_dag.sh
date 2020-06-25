@@ -12,7 +12,7 @@ function yaml() {
         ruby -r yaml -r hash_dot <<< $cmd;
     fi
 }
-outdir=$(yaml config.yaml outdir) # get outdir value from config file
+outdir=$(yaml config.yaml OUTDIR) # get outdir value from config file
 outdirdag=$outdir/DAG
 mkdir -p $outdirdag # create outdir folder if necessary
 snakemake --dag | dot -Tsvg > $outdirdag/dag.svg # save dag to svg

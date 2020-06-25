@@ -1,9 +1,34 @@
-# DIRECTORIES
-outdir: OUTPUT # output directory
-aggrmatrix: TESTDATA/small_aggr/filtered_feature_bc_matrix.h5 # aggregated H5 file
-aggrfile: TESTDATA/small_aggr/aggregation.csv # aggregation file used with cellranger aggre
-sample_extraction_fromcol: library_id # library_id or molecule_h5
-indivdir: TESTDATA/unaggr # individual samples directory
+##############
+# DEFINE PATHS
+##############
+OUTDIR: OUTPUT # output directory
+AGGRMATRIX: TESTDATA/small_aggr/filtered_feature_bc_matrix.h5 # aggregated H5 file
+AGGRFILE: TESTDATA/small_aggr/aggregation.csv # aggregation file used with cellranger aggre
+SAMPLE_EXTRACTION_FROMCOL: library_id # library_id or molecule_h5
+INDIVDIR: TESTDATA/unaggr # individual samples directory
 
+#######################################
+# WORKFLOW STEPS - set to True or False
+#######################################
+CELL_PHASE_ASSIGNMENT: False
+SCRAN_DECONVOLUTION: True
+SCRAN_DECONVOLUTION_INDIVIDUAL: True
+SEURAT_SCTRANSFORM: True
+
+#######################################
+# VARIABLE BELOW SHOULD NOT BE MODIFIED
+#######################################
+OPTIONAL_STEPS: ['CELL_PHASE_ASSIGNMENT'] # all optional steps available
+NORMALIZATIONS: ['SCRAN_DECONVOLUTION','SCRAN_DECONVOLUTION_INDIVIDUAL','SEURAT_SCTRANSFORM'] # all normalization methods available
+DEFAULT_NORMALIZATION: SCRAN_DECONVOLUTION # default normalization
+
+# COMPLETION FILES
+STEP_CELL_PHASE_ASSIGNMENT: step3_cell_phase_assignment
+STEP_SCRAN_DECONVOLUTION: step6_scran_deconvolution
+STEP_SCRAN_DECONVOLUTION_INDIVIDUAL: step6_scran_deconvolution_merged
+STEP_SEURAT_SCTRANSFORM: step6_seurat_sctransform
+
+################
 # RESOURCE FILES
-ribogenesfile: mart_export_RiboGenes_GO0005840.txt # ribosomal genes file
+################
+RIBOGENESFILE: mart_export_RiboGenes_GO0005840.txt # ribosomal genes file
