@@ -22,5 +22,7 @@ conda install -c anaconda pytables --yes
 #devtools::install_github('chris-mcginnis-ucsf/DoubletFinder')
 #conda install -c conda-forge r-remotes --yes
 #remotes::install_github('chris-mcginnis-ucsf/DoubletFinder')
-conda install -c bioconda r-seurat --yes
+#conda install -c bioconda r-seurat --yes
+# 
 conda install -c conda-forge umap-learn --yes
+#remotes::install_github('ChristophH/sctransform')
