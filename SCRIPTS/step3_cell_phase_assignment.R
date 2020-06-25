@@ -75,8 +75,8 @@ add_legend <- function(...) {
 }
 
 pdf(snakemake@output[['cell_cycle_plot_colored']]) # create PDF plot
-plot(assignments$score$G1, assignments$score$G2M, col=cells.col, pch=".")
-add_legend("topright",legend=c("G1","G2M","S"),xlab="G1 score", ylab="G2/M score",pch=20, col=c("red","blue","green"), horiz=TRUE, bty='n')
+plot(assignments$score$G1, assignments$score$G2M, col=cells.col, pch=".", xlab="G1 score", ylab="G2/M score")
+add_legend("topright",legend=c("G1","G2M","S"), pch=20, col=c("red","blue","green"), horiz=TRUE, bty='n')
 dev.off()
 
 ###############
