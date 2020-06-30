@@ -12,3 +12,6 @@ OUTPUT/
 
 # ignore Rplots files
 **/Rplots.pdf
+
+# ignore .snakemake folder
+.snakemake/**
