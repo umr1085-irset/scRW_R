@@ -138,10 +138,10 @@ rule step6_norm_scran_deconvolution:
 	input:
 		rds_sce_cells_genes_singlets=OUTDIR+"objects/sce/sce_cells_genes_singlets.rds",
 	output:
-		rds_clusters=OUTDIR+"Normalization/scran_deconvolution/ALL_normalization_clusters.rds",
-		plot_Norm_HistSizeFactors=OUTDIR+"Normalization/scran_deconvolution/Norm_HistSizeFactors.pdf",
-		plot_Norm_SizeFactorsVsTotalCountsPerMillion=OUTDIR+"Normalization/scran_deconvolution/Norm_SizeFactorsVsTotalCountsPerMillion.pdf",
-		plot_Norm_SizeFactorsVsTotalCounts_smooth=OUTDIR+"Normalization/scran_deconvolution/Norm_SizeFactorsVsTotalCounts_smooth.pdf",
+		rds_clusters=OUTDIR+"normalization/scran_deconvolution/ALL_normalization_clusters.rds",
+		plot_Norm_HistSizeFactors=OUTDIR+"normalization/scran_deconvolution/Norm_HistSizeFactors.pdf",
+		plot_Norm_SizeFactorsVsTotalCountsPerMillion=OUTDIR+"normalization/scran_deconvolution/Norm_SizeFactorsVsTotalCountsPerMillion.pdf",
+		plot_Norm_SizeFactorsVsTotalCounts_smooth=OUTDIR+"normalization/scran_deconvolution/Norm_SizeFactorsVsTotalCounts_smooth.pdf",
 		rds_sce_cells_genes_singlets_normed=OUTDIR+"objects/sce/sce_cells_genes_singlets_scran_deconvolution.rds",
 		step_complete=OUTDIR+".completion/step6_scran_deconvolution"
 	params:
@@ -154,10 +154,10 @@ rule step6_norm_scran_deconvolution_individual:
 		sample_singlets=OUTDIR+"DoubletFinder/barcode_lists/{sample}_barcodes_singlets.txt",
 		rds_sce_cells_genes_singlets=OUTDIR+"objects/sce/sce_cells_genes_singlets.rds",
 	output:
-		rds_clusters=OUTDIR+"Normalization/scran_deconvolution/individual_samples/{sample}/normalization_clusters.rds",
-		plot_Norm_HistSizeFactors=OUTDIR+"Normalization/scran_deconvolution/individual_samples/{sample}/Norm_HistSizeFactors.pdf",
-		plot_Norm_SizeFactorsVsTotalCountsPerMillion=OUTDIR+"Normalization/scran_deconvolution/individual_samples/{sample}/Norm_SizeFactorsVsTotalCountsPerMillion.pdf",
-		plot_Norm_SizeFactorsVsTotalCounts_smooth=OUTDIR+"Normalization/scran_deconvolution/individual_samples/{sample}/Norm_SizeFactorsVsTotalCounts_smooth.pdf",
+		rds_clusters=OUTDIR+"normalization/scran_deconvolution/individual_samples/{sample}/normalization_clusters.rds",
+		plot_Norm_HistSizeFactors=OUTDIR+"normalization/scran_deconvolution/individual_samples/{sample}/Norm_HistSizeFactors.pdf",
+		plot_Norm_SizeFactorsVsTotalCountsPerMillion=OUTDIR+"normalization/scran_deconvolution/individual_samples/{sample}/Norm_SizeFactorsVsTotalCountsPerMillion.pdf",
+		plot_Norm_SizeFactorsVsTotalCounts_smooth=OUTDIR+"normalization/scran_deconvolution/individual_samples/{sample}/Norm_SizeFactorsVsTotalCounts_smooth.pdf",
 		rds_sce_cells_genes_singlets_normed=OUTDIR+"objects/sce/individual_samples/{sample}/sce_cells_genes_singlets_scran_deconvolution.rds",
 		step_complete=OUTDIR+".completion/individual_normalization/step6_scran_deconvolution_{sample}"
 	params:
@@ -178,10 +178,11 @@ rule step6_seurat_sctransform:
 	input:
 		rds_sce_cells_genes_singlets=OUTDIR+"objects/sce/sce_cells_genes_singlets.rds"
 	output:
-		rds_sce_cells_genes_singlets_normed=OUTDIR+"objects/sce/sce_cells_genes_singlets_seurat_sctransform.rds",
+		seurat_cells_genes_singlets_normed=OUTDIR+"objects/seurat/seurat_cells_genes_singlets_seurat_sctransform.rds",
+		plot_umap=OUTDIR+'normalization/seurat_sctransform/umap_normed.pdf',
 		step_complete=OUTDIR+".completion/step6_seurat_sctransform"
 	script:
-		"SCRIPTS/step6_seurat_sctransform.R"
+		"SCRIPTS/step6_norm_seurat_sctransform.R"
 
 
 

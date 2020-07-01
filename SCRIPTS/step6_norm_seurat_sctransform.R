@@ -13,49 +13,72 @@
 # Import packages
 #################
 library(Seurat)
+library(SingleCellExperiment)
 
 ##########
 # Load RDS
 ##########
 sce_QcCellsGenes_singlets = readRDS(file=snakemake@input[['rds_sce_cells_genes_singlets']]) # load data from RDS file
-logcounts(sce_QcCellsGenes_singlets) = as(log2(counts(sce_QcCellsGenes_singlets) + 1), "sparseMatrix") # create logcounts assay from counts assay
+#logcounts(sce_QcCellsGenes_singlets) = as(log2(counts(sce_QcCellsGenes_singlets) + 1), "sparseMatrix") # create logcounts assay from counts assay
+logcounts(sce_QcCellsGenes_singlets) = as.matrix(log2(counts(sce_QcCellsGenes_singlets) + 1)) # create logcounts assay from counts assay
 
 #####################################
 # Convert SCE object to Seurat object
 #####################################
-seurat_obj <- as.Seurat(sce_QcCellsGenes_singlets, counts="counts", data="logcounts")
+seurat_obj = as.Seurat(sce_QcCellsGenes_singlets, counts="counts", data="logcounts") # convert SCE to Seurat
 
+###########################
+# SCTransform normalization
+###########################
+seurat_obj = SCTransform(seurat_obj, vars.to.regress = "subsets_Mt_percent", verbose = FALSE) # run Seurat sctransform method
+seurat_obj = RunPCA(seurat_obj, verbose = FALSE) # run PCA on normalizaed data
+seurat_obj = RunUMAP(seurat_obj, dims = 1:30, verbose = FALSE) # run UMAP on normalized data
+seurat_obj = FindNeighbors(seurat_obj, dims = 1:30, verbose = FALSE) # create a Shared Nearest Neighbor (SNN) graph
+seurat_obj = FindClusters(seurat_obj, verbose = FALSE) # find clusters based on SNN graph
+pdf(snakemake@output[['plot_umap']]) # create PDF plot
+DimPlot(seurat_obj, label = TRUE) + NoLegend() # plot UMAP with clusters
+dev.off()
 
+####################
+# Save Seurat object
+####################
+saveRDS(seurat_obj,snakemake@output[['seurat_cells_genes_singlets_normed']])
 
-
-
-
-
-
-
-
-
+###############
+# Complete step
+###############
+file.create(snakemake@output[["step_complete"]])
 
 ###############################################################
 ### R TEST
 ###############################################################
-path_ = 'OUTPUT/objects/sce/sce_cells_genes_singlets.rds'
-sce_QcCellsGenes_singlets = readRDS(file=path_)
-logcounts(sce_QcCellsGenes_singlets) = as(log2(counts(sce_QcCellsGenes_singlets) + 1), "sparseMatrix") # create logcounts assay from counts assay
-seurat_obj <- as.Seurat(sce_QcCellsGenes_singlets, counts="counts", data="logcounts")
+#path_ = 'OUTPUT/objects/sce/sce_cells_genes_singlets.rds'
+#sce_QcCellsGenes_singlets = readRDS(file=path_)
+##sce_QcCellsGenes_singlets = runPCA(sce_QcCellsGenes_singlets) # library(scater)
+##logcounts(sce_QcCellsGenes_singlets) = as(log2(counts(sce_QcCellsGenes_singlets) + 1), "sparseMatrix") # create logcounts assay from counts assay
+#logcounts(sce_QcCellsGenes_singlets) = as.matrix(log2(counts(sce_QcCellsGenes_singlets) + 1)) # create logcounts assay from counts assay
+#seurat_obj <- as.Seurat(sce_QcCellsGenes_singlets, counts="counts", data="logcounts")
+#
+## run sctransform
+##seurat_obj <- SCTransform(seurat_obj, vars.to.regress = "percent.mt", verbose = FALSE)
+#seurat_obj <- SCTransform(seurat_obj, vars.to.regress = "subsets_Mt_percent", verbose = FALSE)
+#
+#seurat_obj <- RunPCA(seurat_obj, verbose = FALSE)
+#saveRDS(seurat_obj,'seurat_obj.rds')
+#seurat_obj = readRDS('seurat_obj.rds')
+#seurat_obj <- RunUMAP(seurat_obj, dims = 1:30, verbose = FALSE)
+#
+#seurat_obj <- FindNeighbors(seurat_obj, dims = 1:30, verbose = FALSE)
+#seurat_obj <- FindClusters(seurat_obj, verbose = FALSE)
+#DimPlot(seurat_obj, label = TRUE) + NoLegend()
 
-# run sctransform
-#seurat_obj <- SCTransform(seurat_obj, vars.to.regress = "percent.mt", verbose = FALSE)
-seurat_obj <- SCTransform(seurat_obj, vars.to.regress = "subsets_Mt_percent", verbose = FALSE)
+#> seurat_obj <- RunPCA(seurat_obj, verbose = FALSE)
+#Warning message:
+#Cannot add objects with duplicate keys (offending key: PC_), setting key to 'pca_' 
 
-seurat_obj <- RunPCA(seurat_obj, verbose = FALSE)
-saveRDS(seurat_obj,'seurat_obj.rds')
-seurat_obj = readRDS('seurat_obj.rds')
-seurat_obj <- RunUMAP(seurat_obj, dims = 1:30, verbose = FALSE)
-
-seurat_obj <- FindNeighbors(seurat_obj, dims = 1:30, verbose = FALSE)
-seurat_obj <- FindClusters(seurat_obj, verbose = FALSE)
-DimPlot(seurat_obj, label = TRUE) + NoLegend()
+#seurat_obj[['umap']]
+#head(Embeddings(seurat_obj, reduction = "pca")[, 1:5])
+#head(Embeddings(seurat_obj, reduction = "umap"))
 
 # problem
 # which version of the data to use?
@@ -113,4 +136,3 @@ DimPlot(seurat_obj, label = TRUE) + NoLegend()
 #48: In theta.ml(y = y, mu = fit$fitted) : iteration limit reached
 #49: In theta.ml(y = y, mu = fit$fitted) : iteration limit reached
 #50: In theta.ml(y = y, mu = fit$fitted) : iteration limit reached
-
