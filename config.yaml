@@ -14,11 +14,12 @@ CELL_PHASE_ASSIGNMENT: False
 SCRAN_DECONVOLUTION: True
 SCRAN_DECONVOLUTION_INDIVIDUAL: True
 SEURAT_SCTRANSFORM: True
+SEURAT_PIPE: True
 
 #######################################
 # VARIABLE BELOW SHOULD NOT BE MODIFIED
 #######################################
-OPTIONAL_STEPS: ['CELL_PHASE_ASSIGNMENT'] # all optional steps available
+OPTIONAL_STEPS: ['CELL_PHASE_ASSIGNMENT','SEURAT_PIPE'] # all optional steps available
 NORMALIZATIONS: ['SCRAN_DECONVOLUTION','SCRAN_DECONVOLUTION_INDIVIDUAL','SEURAT_SCTRANSFORM'] # all normalization methods available
 DEFAULT_NORMALIZATION: SCRAN_DECONVOLUTION # default normalization
 
@@ -27,6 +28,7 @@ STEP_CELL_PHASE_ASSIGNMENT: step3_cell_phase_assignment
 STEP_SCRAN_DECONVOLUTION: step6_scran_deconvolution
 STEP_SCRAN_DECONVOLUTION_INDIVIDUAL: step6_scran_deconvolution_merged
 STEP_SEURAT_SCTRANSFORM: step6_seurat_sctransform
+STEP_SEURAT_PIPE: step_seurat3_pipe
 
 ################
 # RESOURCE FILES
