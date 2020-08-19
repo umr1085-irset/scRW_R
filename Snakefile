@@ -74,8 +74,8 @@ rule step3_cell_phase_assignment:
 		rds_sce_cells=OUTDIR+"objects/sce/sce_cells.rds"
 	output:
 		rds_cell_phase=OUTDIR+"objects/cell_phase/cell_phase_assignments.rds",
-		cell_cycle_plot=OUTDIR+"QC/cell_cyle/QC_CellCycleAssignment.pdf",
-		cell_cycle_plot_colored=OUTDIR+"QC/cell_cyle/QC_CellCycleAssignment_colored.pdf",
+		cell_cycle_plot=OUTDIR+"QC/cell_cycle/QC_CellCycleAssignment.pdf",
+		cell_cycle_plot_colored=OUTDIR+"QC/cell_cycle/QC_CellCycleAssignment_colored.pdf",
 		step_complete=OUTDIR+".completion/step3_cell_phase_assignment"
 	script:
 		"SCRIPTS/step3_cell_phase_assignment.R"
