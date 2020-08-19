@@ -1,4 +1,13 @@
 def dst(config, OUTDIR):
+	'''
+	Define Snakefile targets (completion files) from config file
+	Parameters
+	----------
+	config : json
+		Config parameters as a JSON object, generated from the config file
+	OUTDIR : str
+		Path of the outpout directory
+	'''
 	targets = [] # create empty list of target rules
 	for step in config['OPTIONAL_STEPS']: # loop through optional steps
 		if config[step]: targets.append(config['STEP_%s' % step]) # if step is True, add step completion file to target list
