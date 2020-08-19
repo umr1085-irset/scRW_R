@@ -8,7 +8,7 @@ OUTPUT/
 **/.DS_Store
 
 # ignore pycache folders
-**/__pycache/
+**/__pycache__/
 
 # ignore Rplots files
 **/Rplots.pdf
