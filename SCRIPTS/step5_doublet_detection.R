@@ -19,6 +19,7 @@ library(Seurat)
 ########################################
 # Extract individual sample barcode list
 ########################################
+print(paste0('Running DoubletFinder on ', snakemake@params[['current_sample']])) # display current sample
 bcsgz=gzfile(snakemake@input[['bcsfile']],'rt') # barcodes file handle
 bcs=read.csv(bcsgz,header=F) # read barcodes
 bcs=bcs$V1 # extract barcodes to vector
@@ -29,8 +30,8 @@ bcs=gsub("1", paste0(idx), bcs) # replace default "1" index in individual barcod
 # Load RDS
 ##########
 sce_QcCellsGenes = readRDS(file=snakemake@input[['rds_sce_cells_genes']]) # load data from RDS file
+# Had to use as.matrix() to get a Matrix object: DelayedMatrix otherwise, preventing the use of as.seurat()
 logcounts(sce_QcCellsGenes) = as.matrix(log2(counts(sce_QcCellsGenes) + 1)) # create logcounts assay from counts assay
-#logcounts(sce_QcCellsGenes) = log2(counts(sce_QcCellsGenes) + 1) # create logcounts assay to convert to Seurat object
 
 ###########################################
 # Extract cells matching the current sample

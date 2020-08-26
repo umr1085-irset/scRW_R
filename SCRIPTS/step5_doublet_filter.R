@@ -41,8 +41,8 @@ saveRDS(sce_QcCellsGenes_DF,snakemake@output[['rds_sce_cells_genes_DF']])
 ####################################
 # Save sce object with singlets only
 ####################################
-sce_QcCellsGenes_filtered = sce_QcCellsGenes_DF[,singlets]
-saveRDS(sce_QcCellsGenes_filtered, snakemake@output[['rds_sce_cells_genes_filtered']])
+rds_sce_cells_genes_singlets = sce_QcCellsGenes_DF[,singlets]
+saveRDS(rds_sce_cells_genes_singlets, snakemake@output[['rds_sce_cells_genes_singlets']])
 
 ###############
 # Complete step

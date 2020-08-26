@@ -16,7 +16,7 @@ sce_merged = do.call(cbind, sce_list)
 #############
 # Save to RDS
 #############
-saveRDS(sce_merged, snakemake@output[['rds_sce_cells_genes_filtered_indivnormed_merged']])
+saveRDS(sce_merged, snakemake@output[['rds_sce_cells_genes_singlets_scran_deconvolution_merged']])
 
 ###############
 # Complete step
