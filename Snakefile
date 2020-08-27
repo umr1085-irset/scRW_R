@@ -107,6 +107,8 @@ rule step5_doublet_detection:
 		doublets_sample_file=OUTDIR+'DoubletFinder/barcode_lists/{sample}_barcodes_doublets.txt',
 		singlets_sample_file=OUTDIR+'DoubletFinder/barcode_lists/{sample}_barcodes_singlets.txt',
 		step_complete=OUTDIR+".completion/doubletfinder/{sample}"
+	resources:
+		load=1
 	script:
 		"SCRIPTS/step5_doublet_detection.R"
 

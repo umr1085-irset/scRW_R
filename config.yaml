@@ -1,7 +1,7 @@
 ##############
 # DEFINE PATHS
 ##############
-OUTDIR: OUTPUT # output directory
+OUTDIR: OUTPUT_msg_test # output directory
 AGGRMATRIX: TESTDATA/small_aggr/filtered_feature_bc_matrix.h5 # aggregated H5 file
 AGGRFILE: TESTDATA/small_aggr/aggregation.csv # aggregation file used with cellranger aggre
 SAMPLE_EXTRACTION_FROMCOL: library_id # library_id or molecule_h5
@@ -11,10 +11,10 @@ INDIVDIR: TESTDATA/unaggr # individual samples directory
 # WORKFLOW STEPS - set to True or False
 #######################################
 CELL_PHASE_ASSIGNMENT: False
-SCRAN_DECONVOLUTION: True
-SCRAN_DECONVOLUTION_INDIVIDUAL: True
-SEURAT_SCTRANSFORM: True
-SEURAT_PIPE: True
+SCRAN_DECONVOLUTION: False # T 
+SCRAN_DECONVOLUTION_INDIVIDUAL: False # T
+SEURAT_SCTRANSFORM: True # T
+SEURAT_PIPE: False # T
 
 #######################################
 # VARIABLE BELOW SHOULD NOT BE MODIFIED
