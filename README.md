@@ -5,7 +5,9 @@ Single Cell RNA-seq Workflow in R
 
 ## Config file
 Before running the `snakemake` command to launch the analysis workflow, it is recommended to review the `config.yaml` file. It has multiple sections of interest:
-* `DEFINE PATHS`:
+* `DEFINE PATHS`:  
+  This section is dedicated to data paths
+  * rjr
 
 
 ## Run pipeline
