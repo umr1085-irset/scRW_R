@@ -8,10 +8,12 @@ Before running the `snakemake` command to launch the analysis workflow, it is re
 * `DEFINE PATHS`:  
   This section is dedicated to paths and options relative to folders and files.
   * `OUTDIR`: output directory name
-  * `AGGRMATRIX`: TESTDATA/small_aggr/filtered_feature_bc_matrix.h5 # aggregated H5 file
-  * `AGGRFILE`: TESTDATA/small_aggr/aggregation.csv # aggregation file used with cellranger aggre
-  * `SAMPLE_EXTRACTION_FROMCOL`: library_id # library_id or molecule_h5
-  * `INDIVDIR`: TESTDATA/unaggr # individual samples directory
+  * `AGGRMATRIX`: path to aggregated data H5 file
+  * `AGGRFILE`:  aggregation file (.csv) used with cellranger aggr
+  * `SAMPLE_EXTRACTION_FROMCOL`: `library_id` or `molecule_h5`. Users specify which column to use in the aggregation file to extract sample names
+  * `INDIVDIR`: path to individual samples directory
 
+* `WORKFLOW STEPS - set to True or False`:  
+  Various are available in this section. Users can set them to `True` or `False` in order to generate their desired workflow.
 
 ## Run pipeline
