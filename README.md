@@ -20,8 +20,13 @@ Additional sections below should not be altered.
 
 ## Run pipeline
 
-
-
+For a dry-run (run simulation), run the `snakemake` command with the `-n` option.
 ```
 snakemake -np -j 4
 ```
+
+If the dry-run looks good, run the command without the `-n` option:
+```
+snakemake -p -j 4
+```
+
