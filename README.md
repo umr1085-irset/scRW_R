@@ -21,3 +21,7 @@ Additional sections below should not be altered.
 ## Run pipeline
 
 
+
+```
+snakemake -np -j 4
+```
