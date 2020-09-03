@@ -14,6 +14,10 @@ Before running the `snakemake` command to launch the analysis workflow, it is re
   * `INDIVDIR`: path to individual samples directory
 
 * `WORKFLOW STEPS - set to True or False`:  
-  Various are available in this section. Users can set them to `True` or `False` in order to generate their desired workflow.
+  Various steps are available in this section. Users can set them to `True` or `False` in order to generate their desired workflow. The latter will be generated automatically based on the binary values from this section.  
+  
+Additional sections below should not be altered.
 
 ## Run pipeline
+
+
