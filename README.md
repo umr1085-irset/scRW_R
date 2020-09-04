@@ -3,6 +3,9 @@ Single Cell RNA-seq Workflow in R
 
 ## Pipeline presentation
 
+## Installation
+git clone 
+
 ## Config file
 Before running the `snakemake` command to launch the analysis workflow, it is recommended to review the `config.yaml` file. It has multiple sections of interest:
 * `DEFINE PATHS`:  
@@ -30,3 +33,8 @@ If the dry-run looks good, run the command without the `-n` option:
 snakemake -p -j 4
 ```
 
+To launch the workflow on the Genouest cluster:
+```
+. /local/env/envconda.sh
+conda activate renv
+```
