@@ -4,7 +4,10 @@ Single Cell RNA-seq Workflow in R
 ## Pipeline presentation
 
 ## Installation
-git clone 
+On a local computer or remote platform with `Git` installed, run:
+```
+git clone https://github.com/umr1085-irset/scRW_R.git
+```
 
 ## Config file
 Before running the `snakemake` command to launch the analysis workflow, it is recommended to review the `config.yaml` file. It has multiple sections of interest:
@@ -23,7 +26,7 @@ Additional sections below should not be altered.
 
 ## Run pipeline
 
-For a dry-run (run simulation), run the `snakemake` command with the `-n` option.
+For a dry-run (simulated run with no computation performed), run the `snakemake` command with the `-n` option.
 ```
 snakemake -np -j 4
 ```
@@ -33,8 +36,19 @@ If the dry-run looks good, run the command without the `-n` option:
 snakemake -p -j 4
 ```
 
-To launch the workflow on the Genouest cluster:
+To launch the workflow on the Genouest cluster, users can use the `sbatch` command on a bash script that looks like the following:
 ```
-. /local/env/envconda.sh
-conda activate renv
+#!/bin/bash
+
+#SBATCH --job-name="scrw"
+#SBATCH --output=output_snek.out
+#SBATCH --mem=200G
+#SBATCH --cpus-per-task=48
+
+. /local/env/envconda.sh # load Conda
+conda activate renv # load R environment
+rm -r .snakemake/locks/ # remove potential locks on the output folder
+snakemake --dag | dot -Tsvg > OUTPUT/DAG/dag.svg # generate directed acyclic graph of workflow
+snakemake --resources load=3 -p -j 48 # run workflow
 ```
+
