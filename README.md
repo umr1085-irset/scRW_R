@@ -22,18 +22,18 @@ Before running the `snakemake` command to launch the analysis workflow, it is re
 * `WORKFLOW STEPS - set to True or False`:  
   Various steps are available in this section. Users can set them to `True` or `False` in order to generate their desired workflow. The latter will be generated automatically based on the binary values from this section.  
   
-Additional sections below should not be altered.
+Additional sections in the config file should not be altered.
 
 ## Run pipeline
 
-For a dry-run (simulated run with no computation performed), run the `snakemake` command with the `-n` option.
+For a dry-run (simulated run with no computation performed), run the `snakemake` command with the `-n` option. The `-j` option is used to set the maximum number of cores to use. If not specified, all avaible cores are used.
 ```
-snakemake -np -j 4
+snakemake -n -j 4
 ```
 
 If the dry-run looks good, run the command without the `-n` option:
 ```
-snakemake -p -j 4
+snakemake -j 4
 ```
 
 The following example shows how to launch the workflow on a cluster using `slurm`. Users can use the `sbatch` command on a bash script `run_snakemake.sh` that looks like the following:
