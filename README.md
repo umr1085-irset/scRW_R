@@ -36,19 +36,26 @@ If the dry-run looks good, run the command without the `-n` option:
 snakemake -p -j 4
 ```
 
-To launch the workflow on the Genouest cluster, users can use the `sbatch` command on a bash script that looks like the following:
+The following example shows how to launch the workflow on a cluster using `slurm`. Users can use the `sbatch` command on a bash script `run_snakemake.sh` that looks like the following:
 ```
 #!/bin/bash
 
-#SBATCH --job-name="scrw"
-#SBATCH --output=output_snek.out
-#SBATCH --mem=200G
-#SBATCH --cpus-per-task=48
+#SBATCH --job-name="scrw" # job name
+#SBATCH --output=output_scrw.out # job output file
+#SBATCH --mem=200G # job memory
+#SBATCH --cpus-per-task=48 # job cores
+#SBATCH --partition=sihp # cluster partition to use
+#SBATCH --mail-user=<e-mail> # user email
+#SBATCH --mail-type=ALL # receive emails for all updates
 
 . /local/env/envconda.sh # load Conda
-conda activate renv # load R environment
+conda activate renv # load appropriate R environment
 rm -r .snakemake/locks/ # remove potential locks on the output folder
 snakemake --dag | dot -Tsvg > OUTPUT/DAG/dag.svg # generate directed acyclic graph of workflow
 snakemake --resources load=3 -p -j 48 # run workflow
 ```
 
+To launch the workflow, use the following:
+```
+sbatch run_snakemake.sh
+```
