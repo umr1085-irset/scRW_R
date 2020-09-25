@@ -11,12 +11,20 @@ sys.path.append("SCRIPTS")
 from sample_list_extraction import sle, check_samples
 from define_snakefile_targets import dst
 
-from snakemake.logging import logger
-
 ######################################
 # CONFIG FILE
 ######################################
 configfile: "config.yaml" # load config file
+
+######################################
+# METADATA
+######################################
+if config['SPECIES'].upper()=='HUMAN':
+	ribogenesfile=config['HUMAN_RIBOGENESFILE']
+elif config['SPECIES'].upper()=='MOUSE':
+	ribogenesfile=config['MOUSE_RIBOGENESFILE']
+else:
+	raise ValueError('SPECIES in config file must be HUMAN or MOUSE. Exiting')
 
 ######################################
 # PATHS
@@ -27,12 +35,6 @@ INDIVDIR=os.path.join(config['INDIVDIR'],'')
 ######################################
 # TARGETS
 ######################################
-# steps that should be computed automatically:
-# - step1_create_sce_obj
-# - step2_cell_outliers
-# - step4_gene_filtering
-# - step5_doublet_filter
-
 targets = dst(config, OUTDIR) # Define Snakefile Targets
 
 rule all:
@@ -55,7 +57,8 @@ rule step1_create_sce_obj:
 		step_complete=OUTDIR+".completion/step1_create_sce_obj"
 	params:
 		outdir=OUTDIR,
-		ribogenesfile=config['RIBOGENESFILE']
+		ribogenesfile=ribogenesfile,
+		species=config['SPECIES'].upper()
 	script:
 		"SCRIPTS/step1_create_sce_obj.R"
 
@@ -174,6 +177,40 @@ rule step6_seurat_sctransform:
 	script:
 		"SCRIPTS/step6_norm_seurat_sctransform.R"
 
+rule step7_seurat_pipe_scran_deconvolution:
+	input:
+		rds_sce_cells_genes_singlets_normed=OUTDIR+"objects/sce/sce_cells_genes_singlets_scran_deconvolution.rds"
+	output:
+		rds_seurat=OUTDIR+'objects/seurat/seurat_pipe.rds',
+		step_complete=OUTDIR+".completion/step7_seurat_pipe_scran_deconvolution"
+	params:
+		seuratinput=0
+	script:
+		"SCRIPTS/step7_seurat3_pipe.R"
+
+rule step7_seurat_pipe_scran_deconvolution_merged:
+	input:
+		rds_sce_cells_genes_singlets_normed=OUTDIR+"objects/sce/sce_cells_genes_singlets_scran_deconvolution_merged.rds"
+	output:
+		rds_seurat=OUTDIR+'objects/seurat/seurat_pipe.rds',
+		step_complete=OUTDIR+".completion/step7_seurat_pipe_scran_deconvolution_merged"
+	params:
+		seuratinput=0
+	script:
+		"SCRIPTS/step7_seurat3_pipe.R"
+
+rule step7_seurat_pipe_seurat_sctransform:
+	input:
+		rds_sce_cells_genes_singlets_normed=OUTDIR+"objects/seurat/seurat_cells_genes_singlets_seurat_sctransform.rds"
+	output:
+		rds_seurat=OUTDIR+'objects/seurat/seurat_pipe.rds',
+		step_complete=OUTDIR+".completion/step7_seurat_pipe_seurat_sctransform"
+	params:
+		seuratinput=1
+	script:
+		"SCRIPTS/step7_seurat3_pipe.R"
+
+'''
 rule seurat3_pipe:
 	input:
 		rds_sce_cells_genes_singlets=OUTDIR+"objects/sce/sce_cells_genes_singlets.rds"
@@ -181,6 +218,5 @@ rule seurat3_pipe:
 		rds_seurat=OUTDIR+'objects/seurat/seurat_pipe.rds',
 		step_complete=OUTDIR+".completion/step_seurat3_pipe"
 	script:
-		"SCRIPTS/step_seurat3_pipe.R"
-
-
+		"SCRIPTS/step7_seurat3_pipe.R"
+'''

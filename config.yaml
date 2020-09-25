@@ -7,19 +7,26 @@ AGGRFILE: TESTDATA/small_aggr/aggregation.csv # aggregation file used with cellr
 SAMPLE_EXTRACTION_FROMCOL: library_id # library_id or molecule_h5
 INDIVDIR: TESTDATA/unaggr # individual samples directory
 
+##########
+# METADATA
+##########
+SPECIES: HUMAN
+
 #######################################
 # WORKFLOW STEPS - set to True or False
 #######################################
 CELL_PHASE_ASSIGNMENT: True # cell cycle phase classification from Scran
-SCRAN_DECONVOLUTION: False # normalization
-SCRAN_DECONVOLUTION_INDIVIDUAL: False # normalization
-SEURAT_SCTRANSFORM: True # normalization
-SEURAT_PIPE: False # Seurat analysis after normalization
+# normalizations
+SCRAN_DECONVOLUTION: False
+SCRAN_DECONVOLUTION_INDIVIDUAL: False
+SEURAT_SCTRANSFORM: True
+# analysis
+SEURAT_PIPE: True # Seurat analysis after normalization
 
 #######################################
 # VARIABLE BELOW SHOULD NOT BE MODIFIED
 #######################################
-OPTIONAL_STEPS: ['CELL_PHASE_ASSIGNMENT','SEURAT_PIPE'] # all optional steps available
+OPTIONAL_STEPS: ['CELL_PHASE_ASSIGNMENT'] # all optional steps available
 NORMALIZATIONS: ['SCRAN_DECONVOLUTION','SCRAN_DECONVOLUTION_INDIVIDUAL','SEURAT_SCTRANSFORM'] # all normalization methods available
 DEFAULT_NORMALIZATION: SCRAN_DECONVOLUTION # default normalization
 
@@ -28,9 +35,13 @@ STEP_CELL_PHASE_ASSIGNMENT: step3_cell_phase_assignment
 STEP_SCRAN_DECONVOLUTION: step6_scran_deconvolution
 STEP_SCRAN_DECONVOLUTION_INDIVIDUAL: step6_scran_deconvolution_merged
 STEP_SEURAT_SCTRANSFORM: step6_seurat_sctransform
-STEP_SEURAT_PIPE: step_seurat3_pipe
+STEP_SEURAT_PIPE_SCRAN_DECONVOLUTION: step7_seurat_pipe_scran_deconvolution
+STEP_SEURAT_PIPE_SCRAN_DECONVOLUTION_INDIVIDUAL: step7_seurat_pipe_scran_deconvolution_merged
+STEP_SEURAT_PIPE_SEURAT_SCTRANSFORM: step7_seurat_pipe_seurat_sctransform
+#STEP_SEURAT_PIPE: step_seurat3_pipe
 
 ################
 # RESOURCE FILES
 ################
-RIBOGENESFILE: mart_export_RiboGenes_GO0005840.txt # ribosomal genes file
+HUMAN_RIBOGENESFILE: mart_export_RiboGenes_GO0005840_human.txt # ribosomal genes file
+MOUSE_RIBOGENESFILE: mart_export_RiboGenes_GO0005840_mouse.txt # ribosomal genes file

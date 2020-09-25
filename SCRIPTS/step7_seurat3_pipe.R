@@ -19,16 +19,20 @@ library(jackstraw)
 ##########
 # Load RDS
 ##########
-sce_QcCellsGenes_singlets = readRDS(file=snakemake@input[['rds_sce_cells_genes_singlets']]) # load data from RDS file
-logcounts(sce_QcCellsGenes_singlets) = as.matrix(log2(counts(sce_QcCellsGenes_singlets) + 1)) # create logcounts assay from counts assay
-seurat_obj <- as.Seurat(sce_QcCellsGenes_singlets, counts="counts", data="logcounts")
+if (snakemake@params[['seuratinput']]==0) { # if not a seurat input
+	sce_QcCellsGenes_singlets = readRDS(file=snakemake@input[['rds_sce_cells_genes_singlets_normed']]) # load data from RDS file
+	logcounts(sce_QcCellsGenes_singlets) = as.matrix(log2(counts(sce_QcCellsGenes_singlets) + 1)) # create logcounts assay from counts assay
+	seurat_obj <- as.Seurat(sce_QcCellsGenes_singlets, counts="counts", data="logcounts")	
+} else{
+	seurat_obj <- readRDS(file=snakemake@input[['rds_sce_cells_genes_singlets_normed']]) # load data from RDS file
+}
 
 seurat_obj <- FindVariableFeatures(seurat_obj, selection.method = "vst", nfeatures = 2000)
 seurat_obj <- ScaleData(seurat_obj, features = rownames(seurat_obj))
 seurat_obj <- RunPCA(seurat_obj, features = VariableFeatures(object = seurat_obj), npcs=100)
 seurat_obj <- JackStraw(seurat_obj, reduction = "pca", num.replicate = 100, dims=100)
 seurat_obj <- ScoreJackStraw(seurat_obj, dims = 1:100)
-nDims <- which( seurat_obj[["pca"]]@jackstraw$overall.p.values[,2] > 0.001 )[1]-1
+nDims <- which(seurat_obj[["pca"]]@jackstraw$overall.p.values[,2] > 0.001 )[1]-1
 
 seurat_obj@reductions$pca@cell.embeddings <- seurat_obj@reductions$pca@cell.embeddings[,1:nDims]
 seurat_obj <- RunUMAP(seurat_obj, dims = 1:nDims)

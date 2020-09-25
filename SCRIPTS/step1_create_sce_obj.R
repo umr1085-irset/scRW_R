@@ -49,7 +49,11 @@ sce <- sce[-which(duplicated(rowData(sce)$Symbol))] # filter out based on indice
 #########
 # Cell QC
 #########
-is.mito <- grep("^MT-",rownames(sce)) # find mitochondrial genes
+if(snakemake@params[["species"]]=='HUMAN'){
+	is.mito <- grep("^MT-",rownames(sce)) # find mitochondrial genes
+} else {
+	is.mito <- grep("^Mt",rownames(sce)) # find mitochondrial genes
+}
 ribo.data = read.table(file.ribo.genes, h=T) # read ribosomal gene list
 is.ribo = which(rowData(sce)$ID %in% ribo.data$Gene_stable_ID) # find ribosomal genes
 
