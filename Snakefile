@@ -51,14 +51,16 @@ check_samples(SAMPLES, config['INDIVDIR'])
 ######################################
 rule step1_create_sce_obj:
 	input:
-		aggrmatrix=config['AGGRMATRIX']
+		aggrmatrix=config['AGGRMATRIX'],
+		bcsfiles=expand(INDIVDIR+"{sample}/outs/filtered_feature_bc_matrix/barcodes.tsv.gz", sample=SAMPLES)
 	output:
 		rds_sce=OUTDIR+"objects/sce/sce.rds",
 		step_complete=OUTDIR+".completion/step1_create_sce_obj"
 	params:
 		outdir=OUTDIR,
 		ribogenesfile=ribogenesfile,
-		species=config['SPECIES'].upper()
+		species=config['SPECIES'].upper(),
+		samplelist=SAMPLES
 	script:
 		"SCRIPTS/step1_create_sce_obj.R"
 
@@ -80,6 +82,8 @@ rule step3_cell_phase_assignment:
 		cell_cycle_plot=OUTDIR+"QC/cell_cycle/QC_CellCycleAssignment.pdf",
 		cell_cycle_plot_colored=OUTDIR+"QC/cell_cycle/QC_CellCycleAssignment_colored.pdf",
 		step_complete=OUTDIR+".completion/step3_cell_phase_assignment"
+	params:
+		species=config['SPECIES'].upper()
 	script:
 		"SCRIPTS/step3_cell_phase_assignment.R"
 
@@ -172,7 +176,6 @@ rule step6_seurat_sctransform:
 		rds_sce_cells_genes_singlets=OUTDIR+"objects/sce/sce_cells_genes_singlets.rds"
 	output:
 		seurat_cells_genes_singlets_normed=OUTDIR+"objects/seurat/seurat_cells_genes_singlets_seurat_sctransform.rds",
-		plot_umap=OUTDIR+'normalization/seurat_sctransform/umap_normed.pdf',
 		step_complete=OUTDIR+".completion/step6_seurat_sctransform"
 	script:
 		"SCRIPTS/step6_norm_seurat_sctransform.R"
@@ -204,6 +207,7 @@ rule step7_seurat_pipe_seurat_sctransform:
 		rds_sce_cells_genes_singlets_normed=OUTDIR+"objects/seurat/seurat_cells_genes_singlets_seurat_sctransform.rds"
 	output:
 		rds_seurat=OUTDIR+'objects/seurat/seurat_pipe.rds',
+		plot_umap=OUTDIR+'normalization/seurat_sctransform/umap_normed.pdf',
 		step_complete=OUTDIR+".completion/step7_seurat_pipe_seurat_sctransform"
 	params:
 		seuratinput=1
