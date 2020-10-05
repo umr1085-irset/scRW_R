@@ -31,13 +31,6 @@ seurat_obj = as.Seurat(sce_QcCellsGenes_singlets, counts="counts", data="logcoun
 # SCTransform normalization
 ###########################
 seurat_obj = SCTransform(seurat_obj, vars.to.regress = "subsets_Mt_percent", verbose = FALSE) # run Seurat sctransform method
-seurat_obj = RunPCA(seurat_obj, verbose = FALSE) # run PCA on normalizaed data
-seurat_obj = RunUMAP(seurat_obj, dims = 1:30, verbose = FALSE) # run UMAP on normalized data
-seurat_obj = FindNeighbors(seurat_obj, dims = 1:30, verbose = FALSE) # create a Shared Nearest Neighbor (SNN) graph
-seurat_obj = FindClusters(seurat_obj, verbose = FALSE) # find clusters based on SNN graph
-pdf(snakemake@output[['plot_umap']]) # create PDF plot
-DimPlot(seurat_obj, label = TRUE) + NoLegend() # plot UMAP with clusters
-dev.off()
 
 ####################
 # Save Seurat object
@@ -48,6 +41,46 @@ saveRDS(seurat_obj,snakemake@output[['seurat_cells_genes_singlets_normed']])
 # Complete step
 ###############
 file.create(snakemake@output[["step_complete"]])
+
+##################
+## Import packages
+##################
+#library(Seurat)
+#library(SingleCellExperiment)
+#
+###########
+## Load RDS
+###########
+#sce_QcCellsGenes_singlets = readRDS(file=snakemake@input[['rds_sce_cells_genes_singlets']]) # load data from RDS file
+##logcounts(sce_QcCellsGenes_singlets) = as(log2(counts(sce_QcCellsGenes_singlets) + 1), "sparseMatrix") # create logcounts assay from counts assay
+#logcounts(sce_QcCellsGenes_singlets) = as.matrix(log2(counts(sce_QcCellsGenes_singlets) + 1)) # create logcounts assay from counts assay
+#
+######################################
+## Convert SCE object to Seurat object
+######################################
+#seurat_obj = as.Seurat(sce_QcCellsGenes_singlets, counts="counts", data="logcounts") # convert SCE to Seurat
+#
+############################
+## SCTransform normalization
+############################
+#seurat_obj = SCTransform(seurat_obj, vars.to.regress = "subsets_Mt_percent", verbose = FALSE) # run Seurat sctransform method
+#seurat_obj = RunPCA(seurat_obj, verbose = FALSE) # run PCA on normalizaed data
+#seurat_obj = RunUMAP(seurat_obj, dims = 1:30, verbose = FALSE) # run UMAP on normalized data
+#seurat_obj = FindNeighbors(seurat_obj, dims = 1:30, verbose = FALSE) # create a Shared Nearest Neighbor (SNN) graph
+#seurat_obj = FindClusters(seurat_obj, verbose = FALSE) # find clusters based on SNN graph
+#pdf(snakemake@output[['plot_umap']]) # create PDF plot
+#DimPlot(seurat_obj, label = TRUE) + NoLegend() # plot UMAP with clusters
+#dev.off()
+#
+#####################
+## Save Seurat object
+#####################
+#saveRDS(seurat_obj,snakemake@output[['seurat_cells_genes_singlets_normed']])
+#
+################
+## Complete step
+################
+#file.create(snakemake@output[["step_complete"]])
 
 ###############################################################
 ### R TEST
@@ -84,6 +117,8 @@ file.create(snakemake@output[["step_complete"]])
 # which version of the data to use?
 # using mt percent variable from step1
 
+#saveRDS(seurat_obj,'OUTPUT/objects/seurat/seurat_cells_genes_singlets_seurat_sctransform.rds')
+#file.create("OUTPUT/.completion/step6_seurat_sctransform")
 #> warnings()
 #Messages d'avis :
 #1: In theta.ml(y = y, mu = fit$fitted) : iteration limit reached
