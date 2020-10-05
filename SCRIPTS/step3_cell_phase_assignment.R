@@ -24,7 +24,12 @@ sce_QcCells = readRDS(file=snakemake@input[['rds_sce_cells']])
 # Cell phase assignment
 #######################
 print('Retrieving cycle markers')
-hs.pairs <- readRDS(system.file("exdata", "human_cycle_markers.rds", package="scran")) #list of 3 elements : "G1", "S" and "G2M"
+if(snakemake@params[["species"]]=='HUMAN'){
+	cycle_markers = "human_cycle_markers.rds"
+} else {
+	cycle_markers = "mouse_cycle_markers.rds"
+}
+hs.pairs <- readRDS(system.file("exdata", cycle_markers, package="scran")) #list of 3 elements : "G1", "S" and "G2M"
 rownames(sce_QcCells) <- rowData(sce_QcCells)$ID #Ensembl gene IDs as rownames
 
 print('Computing cell cycle assignments')
