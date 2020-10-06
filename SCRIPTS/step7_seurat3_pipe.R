@@ -22,7 +22,9 @@ library(jackstraw)
 if (snakemake@params[['seuratinput']]==0) { # if not a seurat input
 	sce_QcCellsGenes_singlets = readRDS(file=snakemake@input[['rds_sce_cells_genes_singlets_normed']]) # load data from RDS file
 	logcounts(sce_QcCellsGenes_singlets) = as.matrix(log2(counts(sce_QcCellsGenes_singlets) + 1)) # create logcounts assay from counts assay
-	seurat_obj <- as.Seurat(sce_QcCellsGenes_singlets, counts="counts", data="logcounts")	
+	seurat_obj <- as.Seurat(sce_QcCellsGenes_singlets, counts="counts", data="logcounts")
+	seurat_obj <- ScaleData(seurat_obj) #ScaleData
+	seurat_obj <- FindVariableFeatures(seurat_obj) #FindVariableFeatures.
 } else{
 	seurat_obj <- readRDS(file=snakemake@input[['rds_sce_cells_genes_singlets_normed']]) # load data from RDS file
 }
@@ -30,19 +32,19 @@ if (snakemake@params[['seuratinput']]==0) { # if not a seurat input
 ##########################
 # Dimensionality reduction
 ##########################
-seurat_obj <- RunPCA(seurat_obj, features = VariableFeatures(object = seurat_obj), npcs=100) # run PCA
+seurat_obj <- RunPCA(seurat_obj, features = VariableFeatures(object = seurat_obj), npcs=100)
 
 if (snakemake@params[['seuratinput']]==0) { # if not a seurat input
 	seurat_obj <- JackStraw(seurat_obj, reduction = "pca", num.replicate = 100, dims=100)
 	seurat_obj <- ScoreJackStraw(seurat_obj, dims = 1:100)
 	nDims <- which(seurat_obj[["pca"]]@jackstraw$overall.p.values[,2] > 0.001 )[1]-1
-	seurat_obj@reductions$pca@cell.embeddings <- seurat_obj@reductions$pca@cell.embeddings[,1:nDims]	
+	seurat_obj@reductions$pca@cell.embeddings <- seurat_obj@reductions$pca@cell.embeddings[,1:nDims]
 } else { # else if Seurat object with SCTransform normalization
 	nDims = 30
 }
 
-seurat_obj <- RunUMAP(seurat_obj, dims = 1:nDims) # run UMAP on PCA obj
-seurat_obj <- FindNeighbors(seurat_obj, dims = 1:nDims) # 
+seurat_obj <- RunUMAP(seurat_obj, dims = 1:nDims) # run UMAP on PCA
+seurat_obj <- FindNeighbors(seurat_obj, dims = 1:nDims)
 seurat_obj <- FindClusters(seurat_obj)
 clust.data <- sprintf("c%s",as.numeric(Idents(seurat_obj)))
 names(clust.data) <- names(Idents(seurat_obj))
@@ -65,3 +67,6 @@ saveRDS(seurat_obj,file=snakemake@output[['rds_seurat']])
 # Complete step
 ###############
 file.create(snakemake@output[["step_complete"]])
+
+# R TEST -------------------------------------------------------------------------------------------------
+path_ = 'OUTPUT/objects/sce/sce_cells_genes_singlets_scran_deconvolution.rds'

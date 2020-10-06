@@ -146,31 +146,6 @@ rule step6_norm_scran_deconvolution:
 	script:
 		"SCRIPTS/step6_norm_scran_deconvolution.R"
 
-rule step6_norm_scran_deconvolution_individual:
-	input:
-		sample_singlets=OUTDIR+"DoubletFinder/barcode_lists/{sample}_barcodes_singlets.txt",
-		rds_sce_cells_genes_singlets=OUTDIR+"objects/sce/sce_cells_genes_singlets.rds",
-	output:
-		rds_clusters=OUTDIR+"normalization/scran_deconvolution/individual_samples/{sample}/normalization_clusters.rds",
-		plot_Norm_HistSizeFactors=OUTDIR+"normalization/scran_deconvolution/individual_samples/{sample}/Norm_HistSizeFactors.pdf",
-		plot_Norm_SizeFactorsVsTotalCountsPerMillion=OUTDIR+"normalization/scran_deconvolution/individual_samples/{sample}/Norm_SizeFactorsVsTotalCountsPerMillion.pdf",
-		plot_Norm_SizeFactorsVsTotalCounts_smooth=OUTDIR+"normalization/scran_deconvolution/individual_samples/{sample}/Norm_SizeFactorsVsTotalCounts_smooth.pdf",
-		rds_sce_cells_genes_singlets_normed=OUTDIR+"objects/sce/individual_samples/{sample}/sce_cells_genes_singlets_scran_deconvolution.rds",
-		step_complete=OUTDIR+".completion/individual_normalization/step6_scran_deconvolution_{sample}"
-	params:
-		individual_samples=1
-	script:
-		"SCRIPTS/step6_norm_scran_deconvolution.R"
-
-rule step6_merge_individual_scran_deconvolutions:
-	input:
-		individual_files=expand(OUTDIR+"objects/sce/individual_samples/{sample}/sce_cells_genes_singlets_scran_deconvolution.rds", sample=SAMPLES)
-	output:
-		rds_sce_cells_genes_singlets_scran_deconvolution_merged=OUTDIR+"objects/sce/sce_cells_genes_singlets_scran_deconvolution_merged.rds",
-		step_complete=OUTDIR+".completion/step6_scran_deconvolution_merged"
-	script:
-		"SCRIPTS/step6_merge_individual_scran_deconvolutions.R"
-
 rule step6_seurat_sctransform:
 	input:
 		rds_sce_cells_genes_singlets=OUTDIR+"objects/sce/sce_cells_genes_singlets.rds"
@@ -184,19 +159,9 @@ rule step7_seurat_pipe_scran_deconvolution:
 	input:
 		rds_sce_cells_genes_singlets_normed=OUTDIR+"objects/sce/sce_cells_genes_singlets_scran_deconvolution.rds"
 	output:
-		rds_seurat=OUTDIR+'objects/seurat/seurat_pipe.rds',
+		rds_seurat=OUTDIR+'objects/seurat/seurat_cells_genes_singlets_scran_deconvolution_dimred.rds',
+		plot_umap=OUTDIR+'normalization/scran_deconvolution/umap_normed_scran_deconvolution.pdf',
 		step_complete=OUTDIR+".completion/step7_seurat_pipe_scran_deconvolution"
-	params:
-		seuratinput=0
-	script:
-		"SCRIPTS/step7_seurat3_pipe.R"
-
-rule step7_seurat_pipe_scran_deconvolution_merged:
-	input:
-		rds_sce_cells_genes_singlets_normed=OUTDIR+"objects/sce/sce_cells_genes_singlets_scran_deconvolution_merged.rds"
-	output:
-		rds_seurat=OUTDIR+'objects/seurat/seurat_pipe.rds',
-		step_complete=OUTDIR+".completion/step7_seurat_pipe_scran_deconvolution_merged"
 	params:
 		seuratinput=0
 	script:
@@ -206,21 +171,46 @@ rule step7_seurat_pipe_seurat_sctransform:
 	input:
 		rds_sce_cells_genes_singlets_normed=OUTDIR+"objects/seurat/seurat_cells_genes_singlets_seurat_sctransform.rds"
 	output:
-		rds_seurat=OUTDIR+'objects/seurat/seurat_pipe.rds',
-		plot_umap=OUTDIR+'normalization/seurat_sctransform/umap_normed.pdf',
+		rds_seurat=OUTDIR+'objects/seurat/seurat_cells_genes_singlets_seurat_sctransform_dimred.rds',
+		plot_umap=OUTDIR+'normalization/seurat_sctransform/umap_normed_seurat_sctransform.pdf',
 		step_complete=OUTDIR+".completion/step7_seurat_pipe_seurat_sctransform"
 	params:
 		seuratinput=1
 	script:
 		"SCRIPTS/step7_seurat3_pipe.R"
 
-'''
-rule seurat3_pipe:
-	input:
-		rds_sce_cells_genes_singlets=OUTDIR+"objects/sce/sce_cells_genes_singlets.rds"
-	output:
-		rds_seurat=OUTDIR+'objects/seurat/seurat_pipe.rds',
-		step_complete=OUTDIR+".completion/step_seurat3_pipe"
-	script:
-		"SCRIPTS/step7_seurat3_pipe.R"
-'''
+#rule step6_norm_scran_deconvolution_individual:
+#	input:
+#		sample_singlets=OUTDIR+"DoubletFinder/barcode_lists/{sample}_barcodes_singlets.txt",
+#		rds_sce_cells_genes_singlets=OUTDIR+"objects/sce/sce_cells_genes_singlets.rds",
+#	output:
+#		rds_clusters=OUTDIR+"normalization/scran_deconvolution/individual_samples/{sample}/normalization_clusters.rds",
+#		plot_Norm_HistSizeFactors=OUTDIR+"normalization/scran_deconvolution/individual_samples/{sample}/Norm_HistSizeFactors.pdf",
+#		plot_Norm_SizeFactorsVsTotalCountsPerMillion=OUTDIR+"normalization/scran_deconvolution/individual_samples/{sample}/Norm_SizeFactorsVsTotalCountsPerMillion.pdf",
+#		plot_Norm_SizeFactorsVsTotalCounts_smooth=OUTDIR+"normalization/scran_deconvolution/individual_samples/{sample}/Norm_SizeFactorsVsTotalCounts_smooth.pdf",
+#		rds_sce_cells_genes_singlets_normed=OUTDIR+"objects/sce/individual_samples/{sample}/sce_cells_genes_singlets_scran_deconvolution.rds",
+#		step_complete=OUTDIR+".completion/individual_normalization/step6_scran_deconvolution_{sample}"
+#	params:
+#		individual_samples=1
+#	script:
+#		"SCRIPTS/step6_norm_scran_deconvolution.R"
+#
+#rule step6_merge_individual_scran_deconvolutions:
+#	input:
+#		individual_files=expand(OUTDIR+"objects/sce/individual_samples/{sample}/sce_cells_genes_singlets_scran_deconvolution.rds", sample=SAMPLES)
+#	output:
+#		rds_sce_cells_genes_singlets_scran_deconvolution_merged=OUTDIR+"objects/sce/sce_cells_genes_singlets_scran_deconvolution_merged.rds",
+#		step_complete=OUTDIR+".completion/step6_scran_deconvolution_merged"
+#	script:
+#		"SCRIPTS/step6_merge_individual_scran_deconvolutions.R"
+
+#rule step7_seurat_pipe_scran_deconvolution_merged:
+#	input:
+#		rds_sce_cells_genes_singlets_normed=OUTDIR+"objects/sce/sce_cells_genes_singlets_scran_deconvolution_merged.rds"
+#	output:
+#		rds_seurat=OUTDIR+'objects/seurat/sce_cells_genes_singlets_scran_deconvolution_merged_dimred.rds',
+#		step_complete=OUTDIR+".completion/step7_seurat_pipe_scran_deconvolution_merged"
+#	params:
+#		seuratinput=0
+#	script:
+#		"SCRIPTS/step7_seurat3_pipe.R"
