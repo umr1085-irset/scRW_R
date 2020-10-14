@@ -25,6 +25,7 @@ elif config['SPECIES'].upper()=='MOUSE':
 	ribogenesfile=config['MOUSE_RIBOGENESFILE']
 else:
 	raise ValueError('SPECIES in config file must be HUMAN or MOUSE. Exiting')
+regressoncellcyles=1 if config['REGRESSCELLCYCLES'] else 0
 
 ######################################
 # PATHS
@@ -78,7 +79,7 @@ rule step3_cell_phase_assignment:
 	input:
 		rds_sce_cells=OUTDIR+"objects/sce/sce_cells.rds"
 	output:
-		rds_cell_phase=OUTDIR+"objects/cell_phase/cell_phase_assignments.rds",
+		rds_cell_phase=OUTDIR+"objects/sce/sce_cells_cellphase.rds",
 		cell_cycle_plot=OUTDIR+"QC/cell_cycle/QC_CellCycleAssignment.pdf",
 		cell_cycle_plot_colored=OUTDIR+"QC/cell_cycle/QC_CellCycleAssignment_colored.pdf",
 		step_complete=OUTDIR+".completion/step3_cell_phase_assignment"
@@ -90,7 +91,7 @@ rule step3_cell_phase_assignment:
 rule step4_gene_filtering:
 	input:
 		rds_sce=OUTDIR+"objects/sce/sce.rds",
-		rds_sce_cells=OUTDIR+"objects/sce/sce_cells.rds"
+		rds_sce_cells=OUTDIR+"objects/sce/sce_cells_cellphase.rds"
 	output:
 		QC_genes_AveCounts_PCAOutliersRemoved=OUTDIR+"QC/genes/QC_genes_AveCounts_PCAOutliersRemoved.pdf",
 		QC_genes_NumCells_Counts_PCAOutliersRemoved=OUTDIR+"QC/genes/QC_genes_NumCells_Counts_PCAOutliersRemoved.pdf",
@@ -140,30 +141,47 @@ rule step6_norm_scran_deconvolution:
 		plot_Norm_SizeFactorsVsTotalCountsPerMillion=OUTDIR+"normalization/scran_deconvolution/Norm_SizeFactorsVsTotalCountsPerMillion.pdf",
 		plot_Norm_SizeFactorsVsTotalCounts_smooth=OUTDIR+"normalization/scran_deconvolution/Norm_SizeFactorsVsTotalCounts_smooth.pdf",
 		rds_sce_cells_genes_singlets_normed=OUTDIR+"objects/sce/sce_cells_genes_singlets_scran_deconvolution.rds",
-		step_complete=OUTDIR+".completion/step6_scran_deconvolution"
+		step_complete=OUTDIR+".completion/step6_norm_scran_deconvolution"
 	params:
 		individual_samples=0
 	script:
 		"SCRIPTS/step6_norm_scran_deconvolution.R"
 
-rule step6_seurat_sctransform:
+rule step6_norm_seurat_sctransform:
 	input:
 		rds_sce_cells_genes_singlets=OUTDIR+"objects/sce/sce_cells_genes_singlets.rds"
 	output:
 		seurat_cells_genes_singlets_normed=OUTDIR+"objects/seurat/seurat_cells_genes_singlets_seurat_sctransform.rds",
-		step_complete=OUTDIR+".completion/step6_seurat_sctransform"
+		step_complete=OUTDIR+".completion/step6_norm_seurat_sctransform"
+	params:
+		regressoncellcyles=regressoncellcyles
 	script:
 		"SCRIPTS/step6_norm_seurat_sctransform.R"
+
+rule step6_norm_seurat_lognorm:
+	input:
+		rds_sce_cells_genes_singlets=OUTDIR+"objects/sce/sce_cells_genes_singlets.rds"
+	output:
+		seurat_cells_genes_singlets_normed=OUTDIR+"objects/seurat/seurat_cells_genes_singlets_seurat_lognorm.rds",
+		step_complete=OUTDIR+".completion/step6_norm_seurat_lognorm"
+	script:
+		"SCRIPTS/step6_norm_seurat_lognorm.R"
 
 rule step7_seurat_pipe_scran_deconvolution:
 	input:
 		rds_sce_cells_genes_singlets_normed=OUTDIR+"objects/sce/sce_cells_genes_singlets_scran_deconvolution.rds"
 	output:
 		rds_seurat=OUTDIR+'objects/seurat/seurat_cells_genes_singlets_scran_deconvolution_dimred.rds',
-		plot_umap=OUTDIR+'normalization/scran_deconvolution/umap_normed_scran_deconvolution.pdf',
+		plot_pca_clusters=OUTDIR+'normalization/scran_deconvolution/pca_clusters_normed_scran_deconvolution.pdf',
+		plot_pca_cellphase=OUTDIR+'normalization/scran_deconvolution/pca_cellphase_normed_scran_deconvolution.pdf',
+		plot_umap_clusters=OUTDIR+'normalization/scran_deconvolution/umap_clusters_normed_scran_deconvolution.pdf',
+		plot_umap_cellphase=OUTDIR+'normalization/scran_deconvolution/umap_cellphase_normed_scran_deconvolution.pdf',
 		step_complete=OUTDIR+".completion/step7_seurat_pipe_scran_deconvolution"
 	params:
-		seuratinput=0
+		seuratinput=0,
+		scaled=0,
+		use_jack_straw=1,
+		regressoncellcyles=regressoncellcyles
 	script:
 		"SCRIPTS/step7_seurat3_pipe.R"
 
@@ -172,10 +190,34 @@ rule step7_seurat_pipe_seurat_sctransform:
 		rds_sce_cells_genes_singlets_normed=OUTDIR+"objects/seurat/seurat_cells_genes_singlets_seurat_sctransform.rds"
 	output:
 		rds_seurat=OUTDIR+'objects/seurat/seurat_cells_genes_singlets_seurat_sctransform_dimred.rds',
-		plot_umap=OUTDIR+'normalization/seurat_sctransform/umap_normed_seurat_sctransform.pdf',
+		plot_pca_clusters=OUTDIR+'normalization/seurat_sctransform/pca_clusters_seurat_sctransform.pdf',
+		plot_pca_cellphase=OUTDIR+'normalization/seurat_sctransform/pca_cellphase_normed_seurat_sctransform.pdf',
+		plot_umap_clusters=OUTDIR+'normalization/seurat_sctransform/umap_clusters_normed_seurat_sctransform.pdf',
+		plot_umap_cellphase=OUTDIR+'normalization/seurat_sctransform/umap_cellphase_normed_seurat_sctransform.pdf',
 		step_complete=OUTDIR+".completion/step7_seurat_pipe_seurat_sctransform"
 	params:
-		seuratinput=1
+		seuratinput=1,
+		scaled=1,
+		use_jack_straw=0,
+		regressoncellcyles=regressoncellcyles
+	script:
+		"SCRIPTS/step7_seurat3_pipe.R"
+
+rule step7_seurat_pipe_seurat_lognorm:
+	input:
+		rds_sce_cells_genes_singlets_normed=OUTDIR+"objects/seurat/seurat_cells_genes_singlets_seurat_lognorm.rds"
+	output:
+		rds_seurat=OUTDIR+'objects/seurat/seurat_cells_genes_singlets_seurat_lognorm_dimred.rds',
+		plot_pca_clusters=OUTDIR+'normalization/seurat_lognorm/pca_clusters_normed_seurat_lognorm.pdf',
+		plot_pca_cellphase=OUTDIR+'normalization/seurat_lognorm/pca_cellphase_normed_seurat_lognorm.pdf',
+		plot_umap_clusters=OUTDIR+'normalization/seurat_lognorm/umap_clusters_normed_seurat_lognorm.pdf',
+		plot_umap_cellphase=OUTDIR+'normalization/seurat_lognorm/umap_cellphase_normed_seurat_lognorm.pdf',
+		step_complete=OUTDIR+".completion/step7_seurat_pipe_seurat_lognorm"
+	params:
+		seuratinput=1,
+		scaled=0,
+		use_jack_straw=1,
+		regressoncellcyles=regressoncellcyles
 	script:
 		"SCRIPTS/step7_seurat3_pipe.R"
 

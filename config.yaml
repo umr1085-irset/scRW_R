@@ -11,34 +11,38 @@ INDIVDIR: TESTDATA/unaggr # individual samples directory
 # METADATA
 ##########
 SPECIES: HUMAN
+REGRESSCELLCYCLES: True
 
 #######################################
 # WORKFLOW STEPS - set to True or False
 #######################################
-CELL_PHASE_ASSIGNMENT: True # cell cycle phase classification from Scran
 # normalizations
 SCRAN_DECONVOLUTION: True
-#SCRAN_DECONVOLUTION_INDIVIDUAL: False
 SEURAT_SCTRANSFORM: True
+SEURAT_LOGNORM: True
+#SCRAN_DECONVOLUTION_INDIVIDUAL: False
+#CELL_PHASE_ASSIGNMENT: True # cell cycle phase classification from Scran
+
 # analysis
 SEURAT_PIPE: True # Seurat analysis after normalization
 
 #######################################
 # VARIABLE BELOW SHOULD NOT BE MODIFIED
 #######################################
-OPTIONAL_STEPS: ['CELL_PHASE_ASSIGNMENT'] # all optional steps available
-NORMALIZATIONS: ['SCRAN_DECONVOLUTION','SEURAT_SCTRANSFORM'] # all normalization methods available # 'SCRAN_DECONVOLUTION_INDIVIDUAL'
+#OPTIONAL_STEPS: ['CELL_PHASE_ASSIGNMENT'] # all optional steps available
+NORMALIZATIONS: ['SCRAN_DECONVOLUTION','SEURAT_SCTRANSFORM', 'SEURAT_LOGNORM'] # all normalization methods available # 'SCRAN_DECONVOLUTION_INDIVIDUAL'
 DEFAULT_NORMALIZATION: SCRAN_DECONVOLUTION # default normalization
 
 # COMPLETION FILES
 STEP_CELL_PHASE_ASSIGNMENT: step3_cell_phase_assignment
-STEP_SCRAN_DECONVOLUTION: step6_scran_deconvolution
-#STEP_SCRAN_DECONVOLUTION_INDIVIDUAL: step6_scran_deconvolution_merged
-STEP_SEURAT_SCTRANSFORM: step6_seurat_sctransform
+STEP_SCRAN_DECONVOLUTION: step6_norm_scran_deconvolution
+STEP_SEURAT_SCTRANSFORM: step6_norm_seurat_sctransform
+STEP_SEURAT_LOGNORM: step6_norm_seurat_lognorm
 STEP_SEURAT_PIPE_SCRAN_DECONVOLUTION: step7_seurat_pipe_scran_deconvolution
-#STEP_SEURAT_PIPE_SCRAN_DECONVOLUTION_INDIVIDUAL: step7_seurat_pipe_scran_deconvolution_merged
 STEP_SEURAT_PIPE_SEURAT_SCTRANSFORM: step7_seurat_pipe_seurat_sctransform
-#STEP_SEURAT_PIPE: step_seurat3_pipe
+STEP_SEURAT_PIPE_SEURAT_LOGNORM: step7_seurat_pipe_seurat_lognorm
+#STEP_SCRAN_DECONVOLUTION_INDIVIDUAL: step6_scran_deconvolution_merged
+#STEP_SEURAT_PIPE_SCRAN_DECONVOLUTION_INDIVIDUAL: step7_seurat_pipe_scran_deconvolution_merged
 
 ################
 # RESOURCE FILES

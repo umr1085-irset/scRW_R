@@ -19,7 +19,6 @@ library(SingleCellExperiment)
 # Load RDS
 ##########
 sce_QcCellsGenes_singlets = readRDS(file=snakemake@input[['rds_sce_cells_genes_singlets']]) # load data from RDS file
-#logcounts(sce_QcCellsGenes_singlets) = as(log2(counts(sce_QcCellsGenes_singlets) + 1), "sparseMatrix") # create logcounts assay from counts assay
 logcounts(sce_QcCellsGenes_singlets) = as.matrix(log2(counts(sce_QcCellsGenes_singlets) + 1)) # create logcounts assay from counts assay
 
 #####################################
@@ -30,7 +29,17 @@ seurat_obj = as.Seurat(sce_QcCellsGenes_singlets, counts="counts", data="logcoun
 ###########################
 # SCTransform normalization
 ###########################
-seurat_obj = SCTransform(seurat_obj, vars.to.regress = "subsets_Mt_percent", verbose = FALSE) # run Seurat sctransform method
+
+## normalize data with SCTransform()
+if(snakemake@params[['regressoncellcyles']]){ # if set to normalize regressing on cell cycles
+	s.genes <- cc.genes$s.genes # extract genes associated to S cycle
+	g2m.genes <- cc.genes$g2m.genes # extract genes associated to G2M cycle
+	seurat_obj <- SCTransform(seurat_obj, assay = 'RNA', new.assay.name = 'SCT', vars.to.regress = c('subsets_Mt_percent'))	# normalize before computing cell cyle scores
+	seurat_obj <- CellCycleScoring(seurat_obj, s.features = s.genes, g2m.features = g2m.genes, assay = 'SCT', set.ident=TRUE) # compute cell cyle scores for all cells
+	seurat_obj <- SCTransform(seurat_obj, assay = 'RNA', new.assay.name = 'SCT', vars.to.regress = c('subsets_Mt_percent', 'S.Score', 'G2M.Score'), verbose = FALSE) # normalize again but this time including also the cell cycle scores
+} else {
+	seurat_obj = SCTransform(seurat_obj, vars.to.regress = "subsets_Mt_percent", verbose = FALSE) # run Seurat sctransform method
+}
 
 ####################
 # Save Seurat object

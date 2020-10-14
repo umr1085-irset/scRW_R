@@ -9,9 +9,10 @@ def dst(config, OUTDIR):
 		Path of the outpout directory
 	'''
 	targets = [] # create empty list of target rules
+	'''
 	for step in config['OPTIONAL_STEPS']: # loop through optional steps
 		if config[step]: targets.append(config['STEP_%s' % step]) # if step is True, add step completion file to target list
-
+	'''
 	normalizations = config['NORMALIZATIONS'] # retrive all names of available normalizations
 	if not any([config[x] for x in normalizations]): # retrieve all normalization methods True / False values
 		targets.append(config['STEP_%s' % config['DEFAULT_NORMALIZATION']]) # if all normalizations are False, use default normalization method
