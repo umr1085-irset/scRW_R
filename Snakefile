@@ -53,7 +53,7 @@ check_samples(SAMPLES, config['INDIVDIR'])
 rule step1_create_sce_obj:
 	input:
 		aggrmatrix=config['AGGRMATRIX'],
-		bcsfiles=expand(INDIVDIR+"{sample}/outs/filtered_feature_bc_matrix/barcodes.tsv.gz", sample=SAMPLES)
+		#bcsfiles=expand(INDIVDIR+"{sample}/outs/filtered_feature_bc_matrix/barcodes.tsv.gz", sample=SAMPLES)
 	output:
 		rds_sce=OUTDIR+"objects/sce/sce.rds",
 		step_complete=OUTDIR+".completion/step1_create_sce_obj"
