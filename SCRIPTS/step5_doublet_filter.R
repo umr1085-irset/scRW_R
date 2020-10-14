@@ -42,6 +42,7 @@ saveRDS(sce_QcCellsGenes_DF,snakemake@output[['rds_sce_cells_genes_DF']])
 # Save sce object with singlets only
 ####################################
 rds_sce_cells_genes_singlets = sce_QcCellsGenes_DF[,singlets]
+rownames(rds_sce_cells_genes_singlets) <- rowData(rds_sce_cells_genes_singlets)$Symbol # Switch rownames to Symbols
 saveRDS(rds_sce_cells_genes_singlets, snakemake@output[['rds_sce_cells_genes_singlets']])
 
 ###############

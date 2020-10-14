@@ -80,8 +80,6 @@ barplot(rowData(sce_QcCellsGenes)$AveCount[od1[50:1]], las=1,
         xlab="ave # of UMI")
 dev.off()
 
-rownames(sce_QcCellsGenes) <- rowData(sce_QcCellsGenes)$ID # Switch Ensembl genes 2 Gene names:
-
 ##########
 # Save RDS
 ##########
