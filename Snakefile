@@ -52,7 +52,7 @@ check_samples(SAMPLES, config['INDIVDIR'])
 ######################################
 rule step1_create_sce_obj:
 	input:
-		aggrmatrix=config['AGGRMATRIX'],
+		aggrmatrix=config['AGGRMATRIX']
 	output:
 		rds_sce=OUTDIR+"objects/sce/sce.rds",
 		step_complete=OUTDIR+".completion/step1_create_sce_obj"
@@ -90,7 +90,7 @@ rule step3_cell_phase_assignment:
 rule step4_gene_filtering:
 	input:
 		rds_sce=OUTDIR+"objects/sce/sce.rds",
-		rds_sce_cells=OUTDIR+"objects/sce/sce_cells_cellphase.rds"
+		rds_sce_cells=OUTDIR+"objects/sce/sce_cells.rds"
 	output:
 		QC_genes_AveCounts_PCAOutliersRemoved=OUTDIR+"QC/genes/QC_genes_AveCounts_PCAOutliersRemoved.pdf",
 		QC_genes_NumCells_Counts_PCAOutliersRemoved=OUTDIR+"QC/genes/QC_genes_NumCells_Counts_PCAOutliersRemoved.pdf",
