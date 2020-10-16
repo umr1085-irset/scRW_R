@@ -12,4 +12,4 @@
 conda activate renv # activate R environment
 rm -r .snakemake/locks/ # remove potential locks
 snakemake --dag | dot -Tsvg > OUTPUT/DAG/dag.svg # generate workflow DAG
-snakemake --resources -p -j 48 # launch
+snakemake --resources load=5 -p -j 48 # launch
