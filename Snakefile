@@ -106,7 +106,8 @@ rule step4_gene_filtering:
 rule step5_doublet_detection:
 	input:
 		rds_sce_cells_genes=OUTDIR+"objects/sce/sce_cells_genes.rds",
-		bcsfile=INDIVDIR+"{sample}/outs/filtered_feature_bc_matrix/barcodes.tsv.gz"
+		bcsfile=os.path.join(INDIVDIR+"{sample}",config['SUBPATH_IN_INDIVDIRS'],"barcodes.tsv.gz")
+		#bcsfile=INDIVDIR+"{sample}/outs/filtered_feature_bc_matrix/barcodes.tsv.gz"
 	params:
 		samplelist=SAMPLES,
 		current_sample="{sample}"
@@ -153,7 +154,8 @@ rule step6_norm_seurat_sctransform:
 		seurat_cells_genes_singlets_normed=OUTDIR+"objects/seurat/seurat_cells_genes_singlets_seurat_sctransform.rds",
 		step_complete=OUTDIR+".completion/step6_norm_seurat_sctransform"
 	params:
-		regressoncellcyles=regressoncellcyles
+		regressoncellcyles=regressoncellcyles,
+		future_globals_maxsize=config['FUTURE_GLOBALS_MAXSIZE']
 	script:
 		"SCRIPTS/step6_norm_seurat_sctransform.R"
 

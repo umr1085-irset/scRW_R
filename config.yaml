@@ -6,6 +6,7 @@ AGGRMATRIX: TESTDATA/small_aggr/filtered_feature_bc_matrix.h5 # aggregated H5 fi
 AGGRFILE: TESTDATA/small_aggr/aggregation.csv # aggregation file used with cellranger aggre
 SAMPLE_EXTRACTION_FROMCOL: library_id # library_id or molecule_h5
 INDIVDIR: TESTDATA/unaggr # individual samples directory
+SUBPATH_IN_INDIVDIRS: outs/filtered_feature_bc_matrix/
 
 ##########
 # METADATA
@@ -49,3 +50,8 @@ STEP_SEURAT_PIPE_SEURAT_LOGNORM: step7_seurat_pipe_seurat_lognorm
 ################
 HUMAN_RIBOGENESFILE: mart_export_RiboGenes_GO0005840_human.txt # ribosomal genes file
 MOUSE_RIBOGENESFILE: mart_export_RiboGenes_GO0005840_mouse.txt # ribosomal genes file
+
+############
+# R SETTINGS
+############
+FUTURE_GLOBALS_MAXSIZE: 2000

@@ -14,6 +14,7 @@
 #################
 library(Seurat)
 library(SingleCellExperiment)
+options(future.globals.maxSize = snakemake@params[["future_globals_maxsize"]] * 1024^2)
 
 ##########
 # Load RDS
