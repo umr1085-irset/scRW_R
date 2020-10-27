@@ -19,12 +19,16 @@ library(SingleCellExperiment)
 # Load RDS
 ##########
 sce_QcCellsGenes_singlets = readRDS(file=snakemake@input[['rds_sce_cells_genes_singlets']]) # load data from RDS file
-logcounts(sce_QcCellsGenes_singlets) = as.matrix(log2(counts(sce_QcCellsGenes_singlets) + 1)) # create logcounts assay from counts assay
 
 #####################################
 # Convert SCE object to Seurat object
 #####################################
-seurat_obj = as.Seurat(sce_QcCellsGenes_singlets, counts="counts", data="logcounts") # convert SCE to Seurat
+counts <- assays(sce_QcCellsGenes_singlets)$counts # extract counts from SCE object
+rownames(counts) <-  rowData(sce_QcCellsGenes_singlets)$Symbol # extract rownames (cell barcodes)
+seurat_obj <- CreateSeuratObject(counts = counts, project = "scrw") # create Seurat object
+for (colname in colnames(colData(sce_QcCellsGenes_singlets))){ # loop over metadata columns in SCE object
+	seurat_obj <- AddMetaData(object=seurat_obj, metadata=sce_QcCellsGenes_singlets[[colname]], col.name=colname) # add column
+}
 
 #######################
 # Lognorm normalization
@@ -40,7 +44,3 @@ saveRDS(seurat_obj,snakemake@output[['seurat_cells_genes_singlets_normed']])
 # Complete step
 ###############
 file.create(snakemake@output[["step_complete"]])
-
-#sce_QcCellsGenes_singlets = readRDS(file='OUTPUT/objects/sce/sce_cells_genes_singlets.rds')
-#saveRDS(seurat_obj,"OUTPUT/objects/seurat/seurat_cells_genes_singlets_seurat_lognorm.rds")
-#file.create("OUTPUT/.completion/step6_seurat_lognorm")

@@ -18,9 +18,9 @@ REGRESSCELLCYCLES: True
 # WORKFLOW STEPS - set to True or False
 #######################################
 # normalizations
-SCRAN_DECONVOLUTION: True
+SCRAN_DECONVOLUTION: False
 SEURAT_SCTRANSFORM: True
-SEURAT_LOGNORM: True
+SEURAT_LOGNORM: False
 #SCRAN_DECONVOLUTION_INDIVIDUAL: False
 #CELL_PHASE_ASSIGNMENT: True # cell cycle phase classification from Scran
 
