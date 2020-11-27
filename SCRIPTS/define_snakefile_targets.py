@@ -9,24 +9,24 @@ def dst(config, OUTDIR):
 		Path of the outpout directory
 	'''
 	targets = [] # create empty list of target rules
-	'''
-	for step in config['OPTIONAL_STEPS']: # loop through optional steps
-		if config[step]: targets.append(config['STEP_%s' % step]) # if step is True, add step completion file to target list
-	'''
+	norms = []
 	normalizations = config['NORMALIZATIONS'] # retrive all names of available normalizations
 	if not any([config[x] for x in normalizations]): # retrieve all normalization methods True / False values
 		targets.append(config['STEP_%s' % config['DEFAULT_NORMALIZATION']]) # if all normalizations are False, use default normalization method
 		if config['SEURAT_PIPE']:
 			targets.append(config['STEP_SEURAT_PIPE_%s' % config['DEFAULT_NORMALIZATION']])
+			norms.append(config['DEFAULT_NORMALIZATION'].lower())
 	else: # if one method is set to True
 		for method in normalizations: # loop through methods
 			if config[method]: # if method set to True
 				targets.append(config['STEP_%s' % method]) # append step
+				norms.append(method.lower())
 				if config['SEURAT_PIPE']:
 					targets.append(config['STEP_SEURAT_PIPE_%s' % method])
-
+	targets.append('report')
 	targets = [OUTDIR+".completion/%s" % x for x in targets] # update list of target paths with output directory and hidden completion folder
-	return targets
+	
+	return targets, norms
 
 ###################################################################################################################################################
 ###################################################################################################################################################
