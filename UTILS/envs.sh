@@ -27,3 +27,7 @@ conda install -c conda-forge umap-learn --yes
 #remotes::install_github('ChristophH/sctransform')
 #BiocManager::install("lfa")
 conda install -c bioconda r-jackstraw --yes
+conda install -c anaconda jinja2 --yes
+conda install -c plotly plotly --yes
+conda install -c r r-rjson --yes
+conda install -c bokeh bokeh --yes
