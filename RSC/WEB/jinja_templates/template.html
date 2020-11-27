@@ -1,0 +1,136 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>scRW Run Report</title>
+  <meta name="description" content="The HTML5 Herald">
+  <meta name="author" content="SitePoint">
+  <link rel="stylesheet" href={{css}}>
+</head>
+
+<body style class>
+	<div class="navbar navbar-expand-lg fixed-top navbar-light bg-light" style>
+		<img src={{report_icon}} alt="report icon" height="40" width="40">
+		<div class="">
+			<a class="navbar-brand" href="#">&emsp;Analysis report for project <strong>{{project_name}}</strong></a>	
+		</div>
+	</div>
+	</br>
+	</br>
+	</br>
+	<div class="container">
+		<!-- STEP 1 -->
+		<div class="page-header">
+			<h1>Data information</h1>
+			<p>Species: <strong>{{species}}</strong></p>
+			<p>Total number of cells: <strong>{{step1_total_cells}}</strong></p>
+			<p>Number of samples: <strong>{{number_of_samples}}</strong></p>
+			<p>Number of redundant genes removed: <strong>{{step1_number_redundant_genes_removed}}</strong></p>
+		</div>
+		<div id="step1_samples_cells_chart" class="chart"></div>
+
+		</br>
+		<div class="page-header">
+			<h1>Cells QC</h1>
+			<p>Average counts per cell: <strong>{{step1_avg_counts}}</strong></p>
+			<p>Average genes detected per cell: <strong>{{step1_avg_detected}}</strong></p>
+		</div>
+		<div id="step1_avg_counts_chart" class="chart"></div>
+		<div id="step1_genes_detected_chart" class="chart"></div>
+
+		<!-- STEP 2 -->
+		<div class="page-header">
+			<h1>Cell outliers</h1>
+			<p>Number of cells defined as outliers: <strong>{{step2_noutliers}}</strong></p>
+			<p>Number of remaining cells after outlier removal: <strong>{{step2_nremaining}}</strong></p>
+		</div>
+		<div id="step2_cell_outliers_chart" class="chart"></div>
+
+		<!-- STEP 4 -->
+		<div class="page-header">
+			<h1>Gene filtering</h1>
+		</div>
+		<div id="step4_avg_counts_chart" class="chart"></div>
+
+		<!-- STEP 5 -->
+		<div class="page-header">
+			<h1>Identifying doublets with DoubletFinder</h1>
+		</div>
+		<div id="step5_doubletfinder_chart" class="chart"></div>
+
+		<!-- STEP 6 -->
+		<div class="page-header">{{div_seurat_sctransform}}</div>
+		<div id="step7_seurat_sctransform_chart_sample" class="chart"></div>
+		<div id="step7_seurat_sctransform_chart_phase" class="chart"></div>
+		<div id="step7_seurat_sctransform_chart_cluster" class="chart"></div>
+
+		<div class="page-header">{{div_seurat_lognorm}}</div>
+		<div id="step7_seurat_lognorm_chart_sample" class="chart"></div>
+		<div id="step7_seurat_lognorm_chart_phase" class="chart"></div>
+		<div id="step7_seurat_lognorm_chart_cluster" class="chart"></div>
+		
+		<div class="page-header">{{div_scran_deconvolution}}</div>
+		<div id="step7_scran_deconvolution_chart_sample" class="chart"></div>
+		<div id="step7_scran_deconvolution_chart_phase" class="chart"></div>
+		<div id="step7_scran_deconvolution_chart_cluster" class="chart"></div>
+	</div>
+</body>
+
+<!-- Plotly.js -->
+<script src="{{plotly_js}}"></script>
+<script type="text/javascript"> 
+    var graphs = {{step1_samples_cells_chart | safe}}
+    Plotly.plot('step1_samples_cells_chart',graphs,{});
+</script>
+<script type="text/javascript"> 
+    var graphs = {{step1_avg_counts_chart | safe}}
+    Plotly.plot('step1_avg_counts_chart',graphs,{});
+</script>
+<script type="text/javascript"> 
+    var graphs = {{step1_genes_detected_chart | safe}}
+    Plotly.plot('step1_genes_detected_chart',graphs,{});
+</script>
+<script type="text/javascript"> 
+    var graphs = {{step2_cell_outliers_chart | safe}}
+    Plotly.plot('step2_cell_outliers_chart',graphs,{});
+</script>
+<script type="text/javascript"> 
+    var graphs = {{step4_avg_counts_chart | safe}}
+    Plotly.plot('step4_avg_counts_chart',graphs,{});
+</script>
+<script type="text/javascript"> 
+    var graphs = {{step5_doubletfinder_chart | safe}}
+    Plotly.plot('step5_doubletfinder_chart',graphs,{});
+</script>
+{% if step7_seurat_sctransform_chart_sample is defined %}
+	<script type="text/javascript"> 
+		var graphs = {{step7_seurat_sctransform_chart_sample | safe}}
+		Plotly.plot('step7_seurat_sctransform_chart_sample',graphs,{});
+		var graphs = {{step7_seurat_sctransform_chart_phase | safe}}
+		Plotly.plot('step7_seurat_sctransform_chart_phase',graphs,{});
+		var graphs = {{step7_seurat_sctransform_chart_cluster | safe}}
+		Plotly.plot('step7_seurat_sctransform_chart_cluster',graphs,{});
+	</script>
+{% endif %}
+{% if step7_seurat_lognorm_chart_sample is defined %}
+	<script type="text/javascript"> 
+		var graphs = {{step7_seurat_lognorm_chart_sample | safe}}
+		Plotly.plot('step7_seurat_lognorm_chart_sample',graphs,{});
+		var graphs = {{step7_seurat_lognorm_chart_phase | safe}}
+		Plotly.plot('step7_seurat_lognorm_chart_phase',graphs,{});
+		var graphs = {{step7_seurat_lognorm_chart_cluster | safe}}
+		Plotly.plot('step7_seurat_lognorm_chart_cluster',graphs,{});
+	</script>
+{% endif %}
+{% if step7_scran_deconvolution_chart_sample is defined %}
+	<script type="text/javascript"> 
+		var graphs = {{step7_scran_deconvolution_chart_sample | safe}}
+		Plotly.plot('step7_scran_deconvolution_chart_sample',graphs,{});
+		var graphs = {{step7_scran_deconvolution_chart_phase | safe}}
+		Plotly.plot('step7_scran_deconvolution_chart_phase',graphs,{});
+		var graphs = {{step7_scran_deconvolution_chart_cluster | safe}}
+		Plotly.plot('step7_scran_deconvolution_chart_cluster',graphs,{});
+	</script>
+{% endif %}
+</html>
