@@ -32,10 +32,13 @@ plotReducedDim(sce, dimred="PCA_coldata", colour_by="outlier") # plot PCA
 dev.off()
 
 sce_QcCells <- sce[,which(sce$outlier==FALSE)] # keep non-outlier cells
-saveRDS(sce,snakemake@input[['rds_sce']]) # overwrite sce object file
+# saveRDS(sce,snakemake@input[['rds_sce']]) # overwrite sce object file
 saveRDS(sce_QcCells,snakemake@output[['rds_sce_cells']]) # save cell-filtered sce object
+write.csv(pcacoords, snakemake@output[["datalog_df"]]) # save pca coords to df for future report
 
 ###############
 # Complete step
 ###############
 file.create(snakemake@output[["step_complete"]])
+
+#write.csv(pcacoords,'OUTPUT/report/datalog/datalogstep2_df.csv')

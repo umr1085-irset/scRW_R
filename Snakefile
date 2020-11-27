@@ -30,13 +30,15 @@ regressoncellcyles=1 if config['REGRESSCELLCYCLES'] else 0
 ######################################
 # PATHS
 ######################################
-OUTDIR=os.path.join(config['OUTDIR'],'') # grab folder information
+#OUTDIR=os.path.abspath(os.path.join(config['OUTDIR'],'')) # grab folder information
+OUTDIR=os.path.join(os.path.abspath(config['OUTDIR']),'') # grab folder information
 INDIVDIR=os.path.join(config['INDIVDIR'],'')
+RSCDIR=os.path.join(os.getcwd(),'RSC','')
 
 ######################################
 # TARGETS
 ######################################
-targets = dst(config, OUTDIR) # Define Snakefile Targets
+targets, norms = dst(config, OUTDIR) # Define Snakefile Targets
 
 rule all:
 	input: targets
@@ -55,10 +57,11 @@ rule step1_create_sce_obj:
 		aggrmatrix=config['AGGRMATRIX']
 	output:
 		rds_sce=OUTDIR+"objects/sce/sce.rds",
+		datalog=OUTDIR+"report/datalog/datalogstep1_num_genes_removed.txt",
+		datalog_df=OUTDIR+"report/datalog/datalogstep1_df.csv",
 		step_complete=OUTDIR+".completion/step1_create_sce_obj"
 	params:
-		outdir=OUTDIR,
-		ribogenesfile=ribogenesfile,
+		ribogenesfile=RSCDIR+'GENELISTS/%s' % ribogenesfile,
 		species=config['SPECIES'].upper(),
 		samplelist=SAMPLES
 	script:
@@ -70,6 +73,7 @@ rule step2_cell_outliers:
 	output:
 		rds_sce_cells=OUTDIR+"objects/sce/sce_cells.rds",
 		outliers_plot=OUTDIR+"QC/cell_outliers/QC_outlier_cells.pdf",
+		datalog_df=OUTDIR+"report/datalog/datalogstep2_df.csv",
 		step_complete=OUTDIR+".completion/step2_cell_outliers"
 	script:
 		"SCRIPTS/step2_cell_outliers.R"
@@ -99,6 +103,7 @@ rule step4_gene_filtering:
 		QC_genes_AveGeneExpr_PCAOutliersRemoved_LowAbundanceGenesRemoved_breaks100=OUTDIR+'QC/genes/QC_genes_AveGeneExpr_QcCellsGenes_breaks100.pdf',
 		QC_genes_Top50Expr_GreyHist_QcCellsGenes=OUTDIR+'QC/genes/QC_genes_Top50Expr_GreyHist_QcCellsGenes.pdf',
 		rds_sce_cells_genes=OUTDIR+"objects/sce/sce_cells_genes.rds",
+		datalog_df=OUTDIR+"report/datalog/datalogstep4_df.csv",
 		step_complete=OUTDIR+".completion/step4_gene_filtering"
 	script:
 		"SCRIPTS/step4_gene_filtering.R"
@@ -177,6 +182,7 @@ rule step7_seurat_pipe_scran_deconvolution:
 		plot_pca_cellphase=OUTDIR+'normalization/scran_deconvolution/pca_cellphase_normed_scran_deconvolution.pdf',
 		plot_umap_clusters=OUTDIR+'normalization/scran_deconvolution/umap_clusters_normed_scran_deconvolution.pdf',
 		plot_umap_cellphase=OUTDIR+'normalization/scran_deconvolution/umap_cellphase_normed_scran_deconvolution.pdf',
+		datalog_df=OUTDIR+'report/datalog/datalogstep7_scran_deconvolution_df.csv',
 		step_complete=OUTDIR+".completion/step7_seurat_pipe_scran_deconvolution"
 	params:
 		seuratinput=0,
@@ -195,6 +201,7 @@ rule step7_seurat_pipe_seurat_sctransform:
 		plot_pca_cellphase=OUTDIR+'normalization/seurat_sctransform/pca_cellphase_normed_seurat_sctransform.pdf',
 		plot_umap_clusters=OUTDIR+'normalization/seurat_sctransform/umap_clusters_normed_seurat_sctransform.pdf',
 		plot_umap_cellphase=OUTDIR+'normalization/seurat_sctransform/umap_cellphase_normed_seurat_sctransform.pdf',
+		datalog_df=OUTDIR+'report/datalog/datalogstep7_seurat_sctransform_df.csv',
 		step_complete=OUTDIR+".completion/step7_seurat_pipe_seurat_sctransform"
 	params:
 		seuratinput=1,
@@ -213,7 +220,8 @@ rule step7_seurat_pipe_seurat_lognorm:
 		plot_pca_cellphase=OUTDIR+'normalization/seurat_lognorm/pca_cellphase_normed_seurat_lognorm.pdf',
 		plot_umap_clusters=OUTDIR+'normalization/seurat_lognorm/umap_clusters_normed_seurat_lognorm.pdf',
 		plot_umap_cellphase=OUTDIR+'normalization/seurat_lognorm/umap_cellphase_normed_seurat_lognorm.pdf',
-		step_complete=OUTDIR+".completion/step7_seurat_pipe_seurat_lognorm"
+		datalog_df=OUTDIR+'report/datalog/datalogstep7_seurat_lognorm_df.csv',
+		step_complete=OUTDIR+".completion/step7_seurat_pipe_seurat_lognorm",
 	params:
 		seuratinput=1,
 		scaled=0,
@@ -221,6 +229,29 @@ rule step7_seurat_pipe_seurat_lognorm:
 		regressoncellcyles=regressoncellcyles
 	script:
 		"SCRIPTS/step7_seurat3_pipe.R"
+
+rule create_report:
+	input:
+		plotlyjs_file=RSCDIR+"WEB/plotly-latest.min.js",
+		datalog_step1_genes_rm = OUTDIR+"report/datalog/datalogstep1_num_genes_removed.txt",
+		datalog_df_step1 = OUTDIR+"report/datalog/datalogstep1_df.csv",
+		datalog_df_step2 = OUTDIR+"report/datalog/datalogstep2_df.csv",
+		datalog_df_step4 = OUTDIR+"report/datalog/datalogstep4_df.csv"
+	params:
+		css_file='https://bootswatch.com/4/spacelab/bootstrap.min.css',
+		samplelist=SAMPLES,
+		html_template_dir=RSCDIR+"WEB/jinja_templates",
+		species=config['SPECIES'].upper(),
+		basedir_step7 = OUTDIR+'report/datalog/',
+		nsamples = len(SAMPLES),
+		samples=SAMPLES,
+		project_name=config['PROJECT_NAME'],
+		doubletfinderdir=OUTDIR+'DoubletFinder/barcode_lists'
+	output:
+		html_report = OUTDIR+'report/report.html',
+		step_complete=OUTDIR+".completion/report"
+	script:
+		"SCRIPTS/create_report.py"
 
 #rule step6_norm_scran_deconvolution_individual:
 #	input:

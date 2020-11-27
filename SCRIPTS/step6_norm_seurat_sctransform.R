@@ -15,7 +15,7 @@
 library(Seurat)
 library(SingleCellExperiment)
 options(future.globals.maxSize = snakemake@params[["future_globals_maxsize"]] * 1024^2)
-
+options(future.globals.maxSize = 2000 * 1024^2)
 ##########
 # Load RDS
 ##########
@@ -30,7 +30,7 @@ seurat_obj <- CreateSeuratObject(counts = counts, project = "scrw") # create Seu
 for (colname in colnames(colData(sce_QcCellsGenes_singlets))){ # loop over metadata columns in SCE object
 	seurat_obj <- AddMetaData(object=seurat_obj, metadata=sce_QcCellsGenes_singlets[[colname]], col.name=colname) # add column
 }
-
+saveRDS(seurat_obj,'tmp_seurat_obj.rds')
 ###########################
 # SCTransform normalization
 ###########################
@@ -41,7 +41,7 @@ if(snakemake@params[['regressoncellcyles']]){ # if set to normalize regressing o
 	g2m.genes <- cc.genes$g2m.genes # extract genes associated to G2M cycle
 	seurat_obj <- SCTransform(seurat_obj, assay = 'RNA', new.assay.name = 'SCT', vars.to.regress = c('subsets_Mt_percent'))	# normalize before computing cell cyle scores
 	seurat_obj <- CellCycleScoring(seurat_obj, s.features = s.genes, g2m.features = g2m.genes, assay = 'SCT', set.ident=TRUE) # compute cell cyle scores for all cells
-	seurat_obj <- SCTransform(seurat_obj, assay = 'RNA', new.assay.name = 'SCT', vars.to.regress = c('subsets_Mt_percent', 'S.Score', 'G2M.Score'), verbose = FALSE) # normalize again but this time including also the cell cycle scores
+	seurat_obj <- SCTransform(seurat_obj, assay = 'RNA', new.assay.name = 'SCT', vars.to.regress = c('subsets_Mt_percent', 'S.Score', 'G2M.Score')) # normalize again but this time including also the cell cycle scores
 } else {
 	seurat_obj = SCTransform(seurat_obj, vars.to.regress = "subsets_Mt_percent", verbose = FALSE) # run Seurat sctransform method
 }

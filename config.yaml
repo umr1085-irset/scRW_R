@@ -11,6 +11,7 @@ SUBPATH_IN_INDIVDIRS: outs/filtered_feature_bc_matrix/
 ##########
 # METADATA
 ##########
+PROJECT_NAME: HUGODECA HUMAN SMALL
 SPECIES: HUMAN
 REGRESSCELLCYCLES: True
 
@@ -18,9 +19,9 @@ REGRESSCELLCYCLES: True
 # WORKFLOW STEPS - set to True or False
 #######################################
 # normalizations
-SCRAN_DECONVOLUTION: False
+SCRAN_DECONVOLUTION: True
 SEURAT_SCTRANSFORM: True
-SEURAT_LOGNORM: False
+SEURAT_LOGNORM: True
 #SCRAN_DECONVOLUTION_INDIVIDUAL: False
 #CELL_PHASE_ASSIGNMENT: True # cell cycle phase classification from Scran
 
@@ -42,6 +43,7 @@ STEP_SEURAT_LOGNORM: step6_norm_seurat_lognorm
 STEP_SEURAT_PIPE_SCRAN_DECONVOLUTION: step7_seurat_pipe_scran_deconvolution
 STEP_SEURAT_PIPE_SEURAT_SCTRANSFORM: step7_seurat_pipe_seurat_sctransform
 STEP_SEURAT_PIPE_SEURAT_LOGNORM: step7_seurat_pipe_seurat_lognorm
+STEP_REPORT: report
 #STEP_SCRAN_DECONVOLUTION_INDIVIDUAL: step6_scran_deconvolution_merged
 #STEP_SEURAT_PIPE_SCRAN_DECONVOLUTION_INDIVIDUAL: step7_seurat_pipe_scran_deconvolution_merged
 

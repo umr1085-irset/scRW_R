@@ -84,6 +84,7 @@ dev.off()
 # Save RDS
 ##########
 saveRDS(sce_QcCellsGenes,snakemake@output[["rds_sce_cells_genes"]])
+write.csv(rowData(sce_QcCellsGenes)[c('AveCount')], snakemake@output[["datalog_df"]])
 
 ###############
 # Complete step
