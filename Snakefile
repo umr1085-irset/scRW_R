@@ -236,7 +236,8 @@ rule create_report:
 		datalog_step1_genes_rm = OUTDIR+"report/datalog/datalogstep1_num_genes_removed.txt",
 		datalog_df_step1 = OUTDIR+"report/datalog/datalogstep1_df.csv",
 		datalog_df_step2 = OUTDIR+"report/datalog/datalogstep2_df.csv",
-		datalog_df_step4 = OUTDIR+"report/datalog/datalogstep4_df.csv"
+		datalog_df_step4 = OUTDIR+"report/datalog/datalogstep4_df.csv",
+		step5_wait=OUTDIR+".completion/step5_doublet_filter"
 	params:
 		css_file='https://bootswatch.com/4/spacelab/bootstrap.min.css',
 		samplelist=SAMPLES,
