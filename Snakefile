@@ -30,7 +30,6 @@ regressoncellcyles=1 if config['REGRESSCELLCYCLES'] else 0
 ######################################
 # PATHS
 ######################################
-#OUTDIR=os.path.abspath(os.path.join(config['OUTDIR'],'')) # grab folder information
 OUTDIR=os.path.join(os.path.abspath(config['OUTDIR']),'') # grab folder information
 INDIVDIR=os.path.join(config['INDIVDIR'],'')
 RSCDIR=os.path.join(os.getcwd(),'RSC','')
@@ -38,10 +37,14 @@ RSCDIR=os.path.join(os.getcwd(),'RSC','')
 ######################################
 # TARGETS
 ######################################
-targets, norms = dst(config, OUTDIR) # Define Snakefile Targets
-
+target_all = OUTDIR+".completion/report" if config['REPORT'] else OUTDIR+".completion/gather"
 rule all:
+	input: target_all
+
+targets, norms = dst(config, OUTDIR) # Define Snakefile Targets
+rule gather:
 	input: targets
+	output: OUTDIR+".completion/gather"
 
 ######################################
 # SAMPLE LIST EXTRACTION
@@ -237,7 +240,7 @@ rule create_report:
 		datalog_df_step1 = OUTDIR+"report/datalog/datalogstep1_df.csv",
 		datalog_df_step2 = OUTDIR+"report/datalog/datalogstep2_df.csv",
 		datalog_df_step4 = OUTDIR+"report/datalog/datalogstep4_df.csv",
-		step5_wait=OUTDIR+".completion/step5_doublet_filter"
+		steps_wait=OUTDIR+".completion/gather"
 	params:
 		css_file='https://bootswatch.com/4/spacelab/bootstrap.min.css',
 		samplelist=SAMPLES,

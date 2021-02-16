@@ -27,6 +27,7 @@ SEURAT_LOGNORM: True
 
 # analysis
 SEURAT_PIPE: True # Seurat analysis after normalization
+REPORT: True
 
 #######################################
 # VARIABLE BELOW SHOULD NOT BE MODIFIED
