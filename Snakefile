@@ -10,6 +10,7 @@ import sys
 sys.path.append("SCRIPTS")
 from sample_list_extraction import sle, check_samples
 from define_snakefile_targets import dst
+from compute_aggrmatrix import aggrmatrix
 
 ######################################
 # CONFIG FILE
@@ -45,12 +46,18 @@ targets, norms = dst(config, OUTDIR) # Define Snakefile Targets
 rule gather:
 	input: targets
 	output: OUTDIR+".completion/gather"
+	shell:
+		"touch {output}"
 
 ######################################
 # SAMPLE LIST EXTRACTION
 ######################################
-SAMPLES = sle(config['AGGRFILE'], config['SAMPLE_EXTRACTION_FROMCOL'])
-check_samples(SAMPLES, config['INDIVDIR'])
+if config['COMPUTE_AGGRMATRIX']:
+	SAMPLES = aggrmatrix(config)
+	config['AGGRMATRIX'] = os.path.join(OUTDIR,'aggrdata')
+else:
+	SAMPLES = sle(config['AGGRFILE'], config['SAMPLE_EXTRACTION_FROMCOL'])
+	check_samples(SAMPLES, config['INDIVDIR'])
 
 ######################################
 # PREPROCESSING

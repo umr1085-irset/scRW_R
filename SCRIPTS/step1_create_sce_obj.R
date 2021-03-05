@@ -23,7 +23,7 @@ library(SingleCellExperiment)
 print('Loading aggregated data')
 sce <- read10xCounts(snakemake@input[['aggrmatrix']], 
           sample.names = NULL,
-          col.names = TRUE, type = "HDF5",
+          col.names = TRUE, type = "auto",
           version = "3", genome = NULL)
 
 # remove dot and digit in gene IDs, rowData(sce)

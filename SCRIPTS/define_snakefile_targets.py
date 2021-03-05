@@ -25,7 +25,7 @@ def dst(config, OUTDIR):
 					targets.append(config['STEP_SEURAT_PIPE_%s' % method])
 				else:
 					targets.append(config['STEP_%s' % method]) # append step
-	targets.append('report')
+	#targets.append('report')
 	targets = [OUTDIR+".completion/%s" % x for x in targets] # update list of target paths with output directory and hidden completion folder
 	
 	return targets, norms

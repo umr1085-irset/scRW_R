@@ -1,12 +1,14 @@
 ##############
 # DEFINE PATHS
 ##############
-OUTDIR: OUTPUT # output directory
-AGGRMATRIX: TESTDATA/small_aggr/filtered_feature_bc_matrix.h5 # aggregated H5 file
-AGGRFILE: TESTDATA/small_aggr/aggregation.csv # aggregation file used with cellranger aggre
-SAMPLE_EXTRACTION_FROMCOL: library_id # library_id or molecule_h5
+OUTDIR: TESTOUTPUT # output directory
+#AGGRMATRIX: TESTDATA/small_aggr/filtered_feature_bc_matrix.h5 # aggregated H5 file
+#AGGRFILE: TESTDATA/small_aggr/aggregation.csv # aggregation file used with cellranger aggre
+#SAMPLE_EXTRACTION_FROMCOL: library_id # library_id or molecule_h5
+COMPUTE_AGGRMATRIX: True
 INDIVDIR: TESTDATA/unaggr # individual samples directory
 SUBPATH_IN_INDIVDIRS: outs/filtered_feature_bc_matrix/
+COMPUTE_AGGRMATRIX: True
 
 ##########
 # METADATA
