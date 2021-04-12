@@ -190,8 +190,10 @@ rule step7_seurat_pipe_scran_deconvolution:
 		rds_seurat=OUTDIR+'objects/seurat/seurat_cells_genes_singlets_scran_deconvolution_dimred.rds',
 		plot_pca_clusters=OUTDIR+'normalization/scran_deconvolution/pca_clusters_normed_scran_deconvolution.pdf',
 		plot_pca_cellphase=OUTDIR+'normalization/scran_deconvolution/pca_cellphase_normed_scran_deconvolution.pdf',
+		plot_pca_samples=OUTDIR+'normalization/scran_deconvolution/pca_samples_normed_scran_deconvolution.pdf',
 		plot_umap_clusters=OUTDIR+'normalization/scran_deconvolution/umap_clusters_normed_scran_deconvolution.pdf',
 		plot_umap_cellphase=OUTDIR+'normalization/scran_deconvolution/umap_cellphase_normed_scran_deconvolution.pdf',
+		plot_umap_samples=OUTDIR+'normalization/scran_deconvolution/umap_samples_normed_scran_deconvolution.pdf',
 		datalog_df=OUTDIR+'report/datalog/datalogstep7_scran_deconvolution_df.csv',
 		step_complete=OUTDIR+".completion/step7_seurat_pipe_scran_deconvolution"
 	params:
@@ -209,8 +211,10 @@ rule step7_seurat_pipe_seurat_sctransform:
 		rds_seurat=OUTDIR+'objects/seurat/seurat_cells_genes_singlets_seurat_sctransform_dimred.rds',
 		plot_pca_clusters=OUTDIR+'normalization/seurat_sctransform/pca_clusters_seurat_sctransform.pdf',
 		plot_pca_cellphase=OUTDIR+'normalization/seurat_sctransform/pca_cellphase_normed_seurat_sctransform.pdf',
+		plot_pca_samples=OUTDIR+'normalization/seurat_sctransform/pca_samples_normed_seurat_sctransform.pdf',
 		plot_umap_clusters=OUTDIR+'normalization/seurat_sctransform/umap_clusters_normed_seurat_sctransform.pdf',
 		plot_umap_cellphase=OUTDIR+'normalization/seurat_sctransform/umap_cellphase_normed_seurat_sctransform.pdf',
+		plot_umap_samples=OUTDIR+'normalization/seurat_sctransform/umap_samples_normed_seurat_sctransform.pdf',
 		datalog_df=OUTDIR+'report/datalog/datalogstep7_seurat_sctransform_df.csv',
 		step_complete=OUTDIR+".completion/step7_seurat_pipe_seurat_sctransform"
 	params:
@@ -228,8 +232,10 @@ rule step7_seurat_pipe_seurat_lognorm:
 		rds_seurat=OUTDIR+'objects/seurat/seurat_cells_genes_singlets_seurat_lognorm_dimred.rds',
 		plot_pca_clusters=OUTDIR+'normalization/seurat_lognorm/pca_clusters_normed_seurat_lognorm.pdf',
 		plot_pca_cellphase=OUTDIR+'normalization/seurat_lognorm/pca_cellphase_normed_seurat_lognorm.pdf',
+		plot_pca_samples=OUTDIR+'normalization/seurat_lognorm/pca_samples_normed_seurat_lognorm.pdf',
 		plot_umap_clusters=OUTDIR+'normalization/seurat_lognorm/umap_clusters_normed_seurat_lognorm.pdf',
 		plot_umap_cellphase=OUTDIR+'normalization/seurat_lognorm/umap_cellphase_normed_seurat_lognorm.pdf',
+		plot_umap_samples=OUTDIR+'normalization/seurat_lognorm/umap_samples_normed_seurat_lognorm.pdf',
 		datalog_df=OUTDIR+'report/datalog/datalogstep7_seurat_lognorm_df.csv',
 		step_complete=OUTDIR+".completion/step7_seurat_pipe_seurat_lognorm",
 	params:
@@ -242,13 +248,13 @@ rule step7_seurat_pipe_seurat_lognorm:
 
 rule create_report:
 	input:
-		plotlyjs_file=RSCDIR+"WEB/plotly-latest.min.js",
 		datalog_step1_genes_rm = OUTDIR+"report/datalog/datalogstep1_num_genes_removed.txt",
 		datalog_df_step1 = OUTDIR+"report/datalog/datalogstep1_df.csv",
 		datalog_df_step2 = OUTDIR+"report/datalog/datalogstep2_df.csv",
 		datalog_df_step4 = OUTDIR+"report/datalog/datalogstep4_df.csv",
 		steps_wait=OUTDIR+".completion/gather"
 	params:
+		plotlyjs_file='https://cdn.plot.ly/plotly-latest.min.js',
 		css_file='https://bootswatch.com/4/spacelab/bootstrap.min.css',
 		samplelist=SAMPLES,
 		html_template_dir=RSCDIR+"WEB/jinja_templates",

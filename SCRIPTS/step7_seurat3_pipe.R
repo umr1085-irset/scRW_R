@@ -80,6 +80,10 @@ pdf(snakemake@output[['plot_pca_cellphase']]) # create PDF plot
 DimPlot(seurat_obj, reduction = "pca", group.by = "Phase") + ggtitle("Normalized data colored by cell phase") # plot PCA with cell phase
 dev.off()
 
+pdf(snakemake@output[['plot_pca_samples']]) # create PDF plot
+DimPlot(seurat_obj, reduction = "pca", group.by = "Sample") + ggtitle("Normalized data colored by sample") # plot UMAP with samples
+dev.off()
+
 ###########
 # Plot UMAP
 ###########
@@ -89,6 +93,10 @@ dev.off()
 
 pdf(snakemake@output[['plot_umap_cellphase']]) # create PDF plot
 DimPlot(seurat_obj, reduction = "umap", group.by = "Phase") + ggtitle("Normalized data colored by cell phase") # plot UMAP with cell phase
+dev.off()
+
+pdf(snakemake@output[['plot_umap_samples']]) # create PDF plot
+DimPlot(seurat_obj, reduction = "umap", group.by = "Sample") + ggtitle("Normalized data colored by sample") # plot UMAP with samples
 dev.off()
 
 datalog = cbind(seurat_obj[["umap"]]@cell.embeddings, seurat_obj@meta.data[c("Sample","Phase","clust")])
@@ -104,7 +112,13 @@ saveRDS(seurat_obj,file=snakemake@output[['rds_seurat']])
 ###############
 file.create(snakemake@output[["step_complete"]])
 
+#pdf('OUTPUT/normalization/seurat_sctransform/umap_samples_normed_seurat_sctransform.pdf')
+#DimPlot(seurat_obj, reduction = "umap", group.by = "Sample") + ggtitle("Normalized data colored by sample") # plot UMAP with cell phase
+#dev.off()
 
+#pdf('OUTPUT/normalization/seurat_sctransform/pca_samples_normed_seurat_sctransform.pdf') # create PDF plot
+#DimPlot(seurat_obj, reduction = "pca", group.by = "Sample") + ggtitle("Normalized data colored by sample") # plot UMAP with samples
+#dev.off()
 
 #######################################################################################################################
 #######################################################################################################################
