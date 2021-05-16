@@ -44,6 +44,9 @@ if(snakemake@params[['regressoncellcyles']]){ # if set to normalize regressing o
 	seurat_obj <- SCTransform(seurat_obj, assay = 'RNA', new.assay.name = 'SCT', vars.to.regress = c('subsets_Mt_percent', 'S.Score', 'G2M.Score')) # normalize again but this time including also the cell cycle scores
 } else {
 	seurat_obj = SCTransform(seurat_obj, vars.to.regress = "subsets_Mt_percent", verbose = FALSE) # run Seurat sctransform method
+	s.genes <- cc.genes$s.genes # extract genes associated to S cycle
+	g2m.genes <- cc.genes$g2m.genes # extract genes associated to G2M cycle
+	seurat_obj <- CellCycleScoring(seurat_obj, s.features = s.genes, g2m.features = g2m.genes, assay = 'SCT', set.ident=TRUE) # compute cell cyle scores for all cells
 }
 
 ####################

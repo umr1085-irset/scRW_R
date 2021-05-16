@@ -35,7 +35,6 @@ template = env.get_template('template.html') # route to html template
 kwargs_dict = dict() # dictionary to store keyword arguments to render template
 kwargs_dict['css']=snakemake.params['css_file']
 kwargs_dict['plotly_js']=snakemake.params['plotlyjs_file']
-kwargs_dict['report_icon']=os.path.join(snakemake.params['html_template_dir'],'icons/report_hex.svg')
 
 ##################################
 # Data information section (step1)

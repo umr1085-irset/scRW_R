@@ -43,6 +43,9 @@ if (snakemake@params[['scaled']]==0) {
 		seurat_obj <- ScaleData(seurat_obj, vars.to.regress = c('subsets_Mt_percent', "S.Score", "G2M.Score")) #ScaleData with no regression on cell cyles
 	} else {
 		seurat_obj <- ScaleData(seurat_obj,  vars.to.regress = c('subsets_Mt_percent')) #ScaleData with no regression on cell cyles
+        s.genes <- cc.genes$s.genes # extract genes associated to S cycle
+        g2m.genes <- cc.genes$g2m.genes # extract genes associated to G2M cycle
+        seurat_obj <- CellCycleScoring(seurat_obj, s.features = s.genes, g2m.features = g2m.genes, assay = 'RNA', set.ident=TRUE) # compute cell cyle scores for all cells
 	}
 	seurat_obj <- FindVariableFeatures(seurat_obj) #FindVariableFeatures.
 }
